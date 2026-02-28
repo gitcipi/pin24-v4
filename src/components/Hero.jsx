@@ -81,22 +81,55 @@ export function Hero() {
             const bottomInsetPx = topInsetPx;
             const rightInsetPx = leftInsetPx;
 
+            // ─── INITIAL STATE BASED ON CURRENT MODE ───
+            const isLandscape = state.current === 'landscape';
+
             gsap.set(heroImageRef.current, {
-                clipPath: 'inset(0px 0px 0px 0px round 0px)',
-                filter: 'drop-shadow(0 0 0px rgba(0,0,0,0))',
-            });
-            gsap.set(heroImgEl.current, { scale: 1 });
-            gsap.set(cardFooterRef.current, {
-                opacity: 0, y: 15,
-                width: cardW, height: footerH,
-                bottom: `${bottomInsetPx}px`,
-                left: '50%', xPercent: -50,
-            });
-            gsap.set(hero1Text.current, { opacity: 1, y: 0, scale: 1 });
-            gsap.set(cardRefs.map(r => r.current), {
-                opacity: 0, scale: 0.5, xPercent: -50, yPercent: -50, left: '50%', top: '50%',
+                clipPath: isLandscape
+                    ? 'inset(0px 0px 0px 0px round 0px)'
+                    : `inset(${topInsetPx}px ${leftInsetPx}px ${bottomInsetPx}px ${rightInsetPx}px round 24px)`,
+                filter: isLandscape
+                    ? 'drop-shadow(0 0 0px rgba(0,0,0,0))'
+                    : 'drop-shadow(0 20px 50px rgba(0,0,0,0.25))',
             });
 
+            gsap.set(heroImgEl.current, { scale: isLandscape ? 1 : 1.15 });
+
+            gsap.set(cardFooterRef.current, {
+                opacity: isLandscape ? 0 : 1,
+                y: isLandscape ? 15 : 0,
+                width: cardW,
+                height: footerH,
+                bottom: `${bottomInsetPx}px`,
+                left: '50%',
+                xPercent: -50,
+            });
+
+            gsap.set(hero1Text.current, {
+                opacity: isLandscape ? 1 : 0,
+                y: isLandscape ? 0 : -30,
+                scale: isLandscape ? 1 : 0.9
+            });
+
+            const sideCards = cardRefs.map(r => r.current);
+            if (isLandscape) {
+                gsap.set(sideCards, {
+                    opacity: 0, scale: 0.5, xPercent: -50, yPercent: -50, left: '50%', top: '50%',
+                });
+            } else if (!isMobile) {
+                const ft = '50%';
+                gsap.set(cardRefs[0].current, { opacity: 1, scale: 0.95, xPercent: -180, top: ft, width: '210px', height: '370px' });
+                gsap.set(cardRefs[2].current, { opacity: 1, scale: 0.95, xPercent: 80, top: ft, width: '210px', height: '370px' });
+                gsap.set(cardRefs[1].current, { opacity: 0.6, scale: 0.85, xPercent: -320, top: ft, width: '190px', height: '340px' });
+                gsap.set(cardRefs[3].current, { opacity: 0.6, scale: 0.85, xPercent: 220, top: ft, width: '190px', height: '340px' });
+            }
+
+            gsap.set('.hero-final-text', {
+                opacity: isLandscape ? 0 : 1,
+                y: isLandscape ? 0 : 0
+            });
+
+            // ─── RE-BUILD TIMELINE ───
             tl = gsap.timeline({ paused: true });
 
             tl.to(hero1Text.current, {
@@ -127,10 +160,15 @@ export function Hero() {
             }
 
             tl.fromTo('.hero-final-text',
-                { opacity: 0, y: 20 },
+                { opacity: isLandscape ? 0 : 1, y: isLandscape ? 20 : 0 },
                 { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out' },
                 0.6,
             );
+
+            // If we are already in portrait mode, sync the timeline to the end
+            if (!isLandscape) {
+                tl.progress(1);
+            }
         };
 
         setTimeout(init, 50);
@@ -237,7 +275,13 @@ export function Hero() {
             }
         };
 
+        let lastWidth = window.innerWidth;
         const onResize = () => {
+            const currentWidth = window.innerWidth;
+            // Ignore small height changes (address bar) but react to width changes
+            if (Math.abs(currentWidth - lastWidth) < 20) return;
+
+            lastWidth = currentWidth;
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
                 if (!hasCompleted.current) {
