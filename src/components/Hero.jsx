@@ -27,19 +27,6 @@ const Card = ({ innerRef, image, title, amount, color, subtext, zIndex = 30 }) =
     </div>
 );
 
-// ─── SCROLL LOCK HELPERS ───
-function lockScroll() {
-    document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
-    document.documentElement.style.overflow = 'hidden';
-}
-
-function unlockScroll() {
-    document.body.style.overflow = '';
-    document.body.style.touchAction = '';
-    document.documentElement.style.overflow = '';
-}
-
 export function Hero() {
     const comp = useRef(null);
     const canAnimate = useMotion();
@@ -51,8 +38,9 @@ export function Hero() {
 
     const cardRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
-    const state = useRef('landscape');   // 'landscape' = initial, 'portrait' = card formed
+    const state = useRef('landscape');
     const isAnimating = useRef(false);
+    const hasCompleted = useRef(false); // Once true, NEVER lock scroll again
 
     useLayoutEffect(() => {
         if (!canAnimate) return;
@@ -60,9 +48,17 @@ export function Hero() {
         let tl;
         let resizeTimer;
 
-        // ─── LOCK on load: hero is at top, user must animate before scrolling ───
-        lockScroll();
+        // Lock scroll ONLY on initial load so user must trigger the animation first
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+        document.documentElement.style.overflow = 'hidden';
         window.scrollTo(0, 0);
+
+        const unlock = () => {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+            document.documentElement.style.overflow = '';
+        };
 
         const init = () => {
             if (tl) tl.kill();
@@ -79,7 +75,6 @@ export function Hero() {
             const bottomInsetPx = topInsetPx;
             const rightInsetPx = leftInsetPx;
 
-            // ─── INITIAL STATE ───
             gsap.set(heroImageRef.current, {
                 clipPath: 'inset(0px 0px 0px 0px round 0px)',
                 filter: 'drop-shadow(0 0 0px rgba(0,0,0,0))',
@@ -96,16 +91,13 @@ export function Hero() {
                 opacity: 0, scale: 0.5, xPercent: -50, yPercent: -50, left: '50%', top: '50%',
             });
 
-            // ─── BUILD TIMELINE ───
             tl = gsap.timeline({ paused: true });
 
-            // Text fades out
             tl.to(hero1Text.current, {
                 opacity: 0, scale: 0.9, y: -30,
                 duration: 0.35, ease: 'power2.in',
             }, 0);
 
-            // Image clips into card
             tl.to(heroImageRef.current, {
                 clipPath: `inset(${topInsetPx}px ${leftInsetPx}px ${bottomInsetPx}px ${rightInsetPx}px round 24px)`,
                 filter: 'drop-shadow(0 20px 50px rgba(0,0,0,0.25))',
@@ -116,12 +108,10 @@ export function Hero() {
                 scale: 1.15, duration: 0.8, ease: 'power3.inOut',
             }, 0.05);
 
-            // Footer appears
             tl.to(cardFooterRef.current, {
                 opacity: 1, y: 0, duration: 0.3, ease: 'power2.out',
             }, 0.4);
 
-            // Side cards (desktop only)
             if (!isMobile) {
                 const ft = '50%';
                 tl.to(cardRefs[0].current, { opacity: 1, scale: 0.95, xPercent: -180, top: ft, width: '210px', height: '370px', duration: 0.6, ease: 'power2.out' }, 0.3);
@@ -130,43 +120,44 @@ export function Hero() {
                 tl.to(cardRefs[3].current, { opacity: 0.6, scale: 0.85, xPercent: 220, top: ft, width: '190px', height: '340px', duration: 0.6, ease: 'power2.out' }, 0.4);
             }
 
-            // Final text
             tl.fromTo('.hero-final-text',
                 { opacity: 0, y: 20 },
                 { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out' },
                 0.6,
             );
-
-            // ─── UNLOCK scroll when forward animation is done ───
-            tl.add(() => {
-                isAnimating.current = false;
-                unlockScroll();
-            }, 0.85);
         };
 
         setTimeout(init, 50);
 
-        // ─── PLAY FORWARD (landscape → portrait) ───
+        // ─── PLAY FORWARD: landscape → portrait ───
         const playForward = () => {
             if (isAnimating.current || state.current !== 'landscape' || !tl) return;
             isAnimating.current = true;
             state.current = 'portrait';
-            lockScroll();
-            window.scrollTo(0, 0);
-            tl.timeScale(1).play();
+
+            tl.timeScale(1).play().then(() => {
+                isAnimating.current = false;
+                hasCompleted.current = true;  // Animation done — NEVER lock again
+                unlock();                      // Free the user to scroll
+            });
         };
 
-        // ─── PLAY REVERSE (portrait → landscape) ───
+        // ─── PLAY REVERSE: portrait → landscape (only from scrollY=0) ───
         const playReverse = () => {
             if (isAnimating.current || state.current !== 'portrait' || !tl) return;
-            if (window.scrollY > 10) return; // only reverse when at the very top
+            if (window.scrollY > 5) return;
             isAnimating.current = true;
             state.current = 'landscape';
-            lockScroll();
-            window.scrollTo(0, 0);
+            hasCompleted.current = false;
+
+            // Temporarily lock just during the reverse animation
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none';
+            document.documentElement.style.overflow = 'hidden';
+
             tl.timeScale(1.3).reverse().then(() => {
                 isAnimating.current = false;
-                // Keep scroll locked in landscape state — user must swipe down to proceed
+                // Stay locked — user needs to swipe down again to proceed
             });
         };
 
@@ -176,12 +167,11 @@ export function Hero() {
 
             const r = comp.current?.getBoundingClientRect();
             if (!r) return;
-            const isNearTop = r.top > -150 && r.top < 150;
 
-            if (e.deltaY > 0 && state.current === 'landscape' && isNearTop) {
+            if (e.deltaY > 0 && state.current === 'landscape' && r.top > -50 && r.top < 50) {
                 e.preventDefault();
                 playForward();
-            } else if (e.deltaY < 0 && state.current === 'portrait' && isNearTop && window.scrollY < 10) {
+            } else if (e.deltaY < 0 && state.current === 'portrait' && window.scrollY < 5) {
                 e.preventDefault();
                 playReverse();
             }
@@ -197,55 +187,37 @@ export function Hero() {
         };
 
         const handleTouchMove = (e) => {
-            if (touchHandled) return;
+            if (touchHandled || isAnimating.current) return;
 
             const dy = touchStartY - e.touches[0].clientY;
 
-            // Swipe DOWN (finger moves up) → play forward
+            // If the animation already completed and we're in portrait, let the user scroll freely
+            if (hasCompleted.current && state.current === 'portrait') {
+                // Only intercept if user is at top and swiping UP (to reverse)
+                if (dy < -25 && window.scrollY < 5) {
+                    touchHandled = true;
+                    e.preventDefault();
+                    playReverse();
+                }
+                return; // Let normal scrolling happen
+            }
+
+            // In landscape state: intercept swipe down to play animation
             if (dy > 15 && state.current === 'landscape') {
                 touchHandled = true;
                 e.preventDefault();
                 playForward();
-                return;
-            }
-
-            // Swipe UP (finger moves down) → play reverse
-            if (dy < -15 && state.current === 'portrait' && window.scrollY < 10) {
-                touchHandled = true;
-                e.preventDefault();
-                playReverse();
-                return;
             }
         };
 
-        // ─── POINTER (PC emulator drag) ───
+        // ─── POINTER (PC emulator click-drag) ───
         let pointerStartY = 0;
         const handlePointerDown = (e) => { pointerStartY = e.clientY; };
         const handlePointerMove = (e) => {
-            if (e.pointerType === 'touch') return;
-            if (e.buttons !== 1) return;
-            if (isAnimating.current) return;
-
+            if (e.pointerType === 'touch' || e.buttons !== 1 || isAnimating.current) return;
             const dy = pointerStartY - e.clientY;
             if (dy > 15 && state.current === 'landscape') {
                 playForward();
-            }
-        };
-
-        // ─── KEYBOARD ───
-        const handleKeyDown = (e) => {
-            if (isAnimating.current) return;
-            if ([' ', 'ArrowDown', 'PageDown'].includes(e.key) && state.current === 'landscape') {
-                e.preventDefault();
-                playForward();
-            }
-        };
-
-        // ─── SCROLL SPY: re-lock when user scrolls back to top in portrait mode ───
-        const handleScroll = () => {
-            if (state.current === 'portrait' && window.scrollY < 5 && !isAnimating.current) {
-                // User scrolled all the way back to top — they might want to reverse
-                // Don't auto-lock, but be ready
             }
         };
 
@@ -253,33 +225,32 @@ export function Hero() {
         const onResize = () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                state.current = 'landscape';
-                lockScroll();
-                window.scrollTo(0, 0);
+                if (!hasCompleted.current) {
+                    state.current = 'landscape';
+                    document.body.style.overflow = 'hidden';
+                    document.body.style.touchAction = 'none';
+                    document.documentElement.style.overflow = 'hidden';
+                    window.scrollTo(0, 0);
+                }
                 init();
             }, 200);
         };
 
-        // ─── EVENT LISTENERS ───
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('touchstart', handleTouchStart, { passive: true });
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
         window.addEventListener('pointerdown', handlePointerDown);
         window.addEventListener('pointermove', handlePointerMove, { passive: false });
-        window.addEventListener('keydown', handleKeyDown, { passive: false });
-        window.addEventListener('scroll', handleScroll, { passive: true });
         window.addEventListener('resize', onResize);
 
         return () => {
             clearTimeout(resizeTimer);
-            unlockScroll();
+            unlock();
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('pointerdown', handlePointerDown);
             window.removeEventListener('pointermove', handlePointerMove);
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('scroll', handleScroll);
             window.removeEventListener('resize', onResize);
             if (tl) tl.kill();
         };
@@ -287,7 +258,6 @@ export function Hero() {
 
     return (
         <section ref={comp} className="w-full h-[100dvh] bg-white overflow-hidden relative">
-            {/* Initial Hero text */}
             <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-center z-[50] text-center px-6 pointer-events-none">
                 <h1 className="text-white text-4xl sm:text-7xl lg:text-9xl font-black leading-[1.1] mb-6 drop-shadow-2xl">
                     Lumea ta, Pin24.
@@ -297,19 +267,9 @@ export function Hero() {
                 </p>
             </div>
 
-            {/* Main Hero clipping container */}
             <div ref={heroImageRef} className="absolute inset-0 z-20">
-                <img
-                    ref={heroImgEl}
-                    src="/new hero page.png"
-                    className="w-full h-full object-cover origin-center"
-                    alt="Pin24 Hero"
-                />
-                {/* Product Footer */}
-                <div
-                    ref={cardFooterRef}
-                    className="absolute bg-white flex items-center justify-between rounded-b-[24px] px-4 shadow-inner border-t border-gray-100"
-                >
+                <img ref={heroImgEl} src="/new hero page.png" className="w-full h-full object-cover origin-center" alt="Pin24 Hero" />
+                <div ref={cardFooterRef} className="absolute bg-white flex items-center justify-between rounded-b-[24px] px-4 shadow-inner border-t border-gray-100">
                     <div className="flex items-center gap-3">
                         <div className="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
                             <img src="/pin24.svg" className="w-4 h-4 brightness-0 invert" alt="" />
@@ -323,7 +283,6 @@ export function Hero() {
                 </div>
             </div>
 
-            {/* Final Text */}
             <div className="absolute z-30 top-[8%] lg:top-[12%] text-center w-full px-6 pointer-events-none">
                 <h2 className="hero-final-text text-3xl sm:text-5xl font-black text-gray-900 mb-3 opacity-0">
                     Pin24, reimaginat.
@@ -333,7 +292,6 @@ export function Hero() {
                 </p>
             </div>
 
-            {/* Side cards - Desktop only */}
             <div className="hidden lg:block absolute inset-0 z-15 pointer-events-none">
                 <Card innerRef={cardRefs[0]} image="/CATEGORIES.jpeg" title="Căutare" subtext="Filtre active" amount="Harta" color="bg-indigo-600" />
                 <Card innerRef={cardRefs[1]} image="/favorite page.jpeg" title="Favorite" subtext="Actualizat" amount="4" color="bg-rose-500" />
