@@ -237,80 +237,80 @@ export function Hero() {
             }
         };
 
-        // ─── RESIZE ───
-        if (resizeTimer) clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            if (!hasCompleted.current) {
-                state.current = 'landscape';
-                lock();
-                window.scrollTo(0, 0);
-            }
-            init();
-        }, 200);
-    };
+        const onResize = () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (!hasCompleted.current) {
+                    state.current = 'landscape';
+                    lock();
+                    window.scrollTo(0, 0);
+                }
+                init();
+            }, 200);
+        };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('pointermove', handlePointerMove, { passive: false });
-    window.addEventListener('resize', onResize);
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('pointerdown', handlePointerDown);
+        window.addEventListener('pointermove', handlePointerMove, { passive: false });
+        window.addEventListener('resize', onResize);
 
-    return () => {
-        clearTimeout(resizeTimer);
-        unlock();
-        window.removeEventListener('wheel', handleWheel);
-        window.removeEventListener('touchstart', handleTouchStart);
-        window.removeEventListener('touchmove', handleTouchMove);
-        window.removeEventListener('pointerdown', handlePointerDown);
-        window.removeEventListener('pointermove', handlePointerMove);
-        window.removeEventListener('resize', onResize);
-        if (tl) tl.kill();
-    };
-}, [canAnimate]);
+        return () => {
+            clearTimeout(resizeTimer);
+            unlock();
+            window.removeEventListener('wheel', handleWheel);
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('pointerdown', handlePointerDown);
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('resize', onResize);
+            if (tl) tl.kill();
+        };
+    }, [canAnimate]);
 
-return (
-    <section ref={comp} className="w-full h-[100dvh] bg-white overflow-hidden relative">
-        <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-center z-[50] text-center px-6 pointer-events-none">
-            <h1 className="text-white text-4xl sm:text-7xl lg:text-9xl font-black leading-[1.1] mb-6 drop-shadow-2xl">
-                Lumea ta, Pin24.
-            </h1>
-            <p className="text-white/90 text-base sm:text-2xl font-bold max-w-2xl drop-shadow-lg">
-                Experiență completă, acum la scară largă.
-            </p>
-        </div>
-
-        <div ref={heroImageRef} className="absolute inset-0 z-20">
-            <img ref={heroImgEl} src="/new hero page.png" className="w-full h-full object-cover origin-center" alt="Pin24 Hero" />
-            <div ref={cardFooterRef} className="absolute bg-white flex items-center justify-between rounded-b-[24px] px-4 shadow-inner border-t border-gray-100">
-                <div className="flex items-center gap-3">
-                    <div className="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
-                        <img src="/pin24.svg" className="w-4 h-4 brightness-0 invert" alt="" />
-                    </div>
-                    <div className="text-left">
-                        <p className="text-[11px] font-bold text-gray-900 uppercase tracking-tight">Pin24 Home</p>
-                        <p className="text-[9px] text-gray-400 font-medium">Locații noi</p>
-                    </div>
-                </div>
-                <p className="text-xs font-black text-gray-900">12.4k</p>
+    return (
+        <section ref={comp} className="w-full h-[100dvh] bg-white overflow-hidden relative">
+            <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-center z-[50] text-center px-6 pointer-events-none">
+                <h1 className="text-white text-4xl sm:text-7xl lg:text-9xl font-black leading-[1.1] mb-6 drop-shadow-2xl">
+                    Lumea ta, Pin24.
+                </h1>
+                <p className="text-white/90 text-base sm:text-2xl font-bold max-w-2xl drop-shadow-lg">
+                    Experiență completă, acum la scară largă.
+                </p>
             </div>
-        </div>
 
-        <div className="absolute z-30 top-[8%] lg:top-[12%] text-center w-full px-6 pointer-events-none">
-            <h2 className="hero-final-text text-3xl sm:text-5xl font-black text-gray-900 mb-3 opacity-0">
-                Pin24, reimaginat.
-            </h2>
-            <p className="hero-final-text text-gray-500 font-medium text-base sm:text-lg opacity-0 max-w-xl mx-auto">
-                Gestionează-ți favoritele și vizualizează hărțile în timp real.
-            </p>
-        </div>
+            <div ref={heroImageRef} className="absolute inset-0 z-20">
+                <img ref={heroImgEl} src="/new hero page.png" className="w-full h-full object-cover origin-center" alt="Pin24 Hero" />
+                <div ref={cardFooterRef} className="absolute bg-white flex items-center justify-between rounded-b-[24px] px-4 shadow-inner border-t border-gray-100">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                            <img src="/pin24.svg" className="w-4 h-4 brightness-0 invert" alt="" />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-[11px] font-bold text-gray-900 uppercase tracking-tight">Pin24 Home</p>
+                            <p className="text-[9px] text-gray-400 font-medium">Locații noi</p>
+                        </div>
+                    </div>
+                    <p className="text-xs font-black text-gray-900">12.4k</p>
+                </div>
+            </div>
 
-        <div className="hidden lg:block absolute inset-0 z-15 pointer-events-none">
-            <Card innerRef={cardRefs[0]} image="/CATEGORIES.jpeg" title="Căutare" subtext="Filtre active" amount="Harta" color="bg-indigo-600" />
-            <Card innerRef={cardRefs[1]} image="/favorite page.jpeg" title="Favorite" subtext="Actualizat" amount="4" color="bg-rose-500" />
-            <Card innerRef={cardRefs[2]} image="/listing example details.jpeg" title="Detalii" subtext="Preț actual" amount="€2.5k" color="bg-emerald-500" />
-            <Card innerRef={cardRefs[3]} image="/listing example.jpeg" title="Recent" subtext="Postat azi" amount="Nou" color="bg-orange-500" />
-        </div>
-    </section>
-);
+            <div className="absolute z-30 top-[8%] lg:top-[12%] text-center w-full px-6 pointer-events-none">
+                <h2 className="hero-final-text text-3xl sm:text-5xl font-black text-gray-900 mb-3 opacity-0">
+                    Pin24, reimaginat.
+                </h2>
+                <p className="hero-final-text text-gray-500 font-medium text-base sm:text-lg opacity-0 max-w-xl mx-auto">
+                    Gestionează-ți favoritele și vizualizează hărțile în timp real.
+                </p>
+            </div>
+
+            <div className="hidden lg:block absolute inset-0 z-15 pointer-events-none">
+                <Card innerRef={cardRefs[0]} image="/CATEGORIES.jpeg" title="Căutare" subtext="Filtre active" amount="Harta" color="bg-indigo-600" />
+                <Card innerRef={cardRefs[1]} image="/favorite page.jpeg" title="Favorite" subtext="Actualizat" amount="4" color="bg-rose-500" />
+                <Card innerRef={cardRefs[2]} image="/listing example details.jpeg" title="Detalii" subtext="Preț actual" amount="€2.5k" color="bg-emerald-500" />
+                <Card innerRef={cardRefs[3]} image="/listing example.jpeg" title="Recent" subtext="Postat azi" amount="Nou" color="bg-orange-500" />
+            </div>
+        </section>
+    );
 }
