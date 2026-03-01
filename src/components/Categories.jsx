@@ -133,6 +133,34 @@ export function Categories() {
         setActiveIndex(index);
     };
 
+    const handleExplore = (categoryId) => {
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+
+        // Custom URL scheme for the Pin24 app
+        const appScheme = `pin24://category/${categoryId}`;
+
+        if (isIOS) {
+            window.location.href = appScheme;
+            // Fallback if app is not installed
+            setTimeout(() => {
+                if (document.visibilityState === 'visible') {
+                    window.location.href = "https://apps.apple.com/pl/app/pin24/id6756490803";
+                }
+            }, 2000);
+        } else if (isAndroid) {
+            // Android uses Intents for a smoother 'Open in App' or 'Store' experience
+            const intentUrl = `intent://category/${categoryId}#Intent;scheme=pin24;package=ro.kobidesign.pin24;end`;
+            window.location.href = intentUrl;
+        } else {
+            // Desktop: Scroll to the install section
+            const installSection = document.getElementById('install-section');
+            if (installSection) {
+                installSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    };
+
     const activeCategory = CATEGORIES[activeIndex];
     const activeProduct = activeCategory.products[0];
 
@@ -166,7 +194,10 @@ export function Categories() {
                 <p className="text-sm md:text-xl text-white/90 font-medium mb-6 md:mb-10 leading-relaxed max-w-md mx-auto md:mx-0 animate-in fade-in slide-in-from-left-8 duration-700 delay-100">
                     {activeCategory.description}
                 </p>
-                <button className="bg-white/95 backdrop-blur-md text-black px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-black text-sm md:text-base hover:scale-105 transition-transform shadow-2xl animate-in fade-in slide-in-from-left-8 duration-700 delay-200">
+                <button
+                    onClick={() => handleExplore(activeCategory.id)}
+                    className="bg-white/95 backdrop-blur-md text-black px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-black text-sm md:text-base hover:scale-105 transition-transform shadow-2xl animate-in fade-in slide-in-from-left-8 duration-700 delay-200"
+                >
                     Explorează {activeCategory.name}
                 </button>
             </div>
