@@ -2,7 +2,7 @@ import React from 'react';
 
 export function Install() {
     return (
-        <section className="py-24 md:py-40 px-6 max-w-5xl mx-auto text-center relative z-10 bg-background">
+        <section id="install-section" className="py-24 md:py-40 px-6 max-w-5xl mx-auto text-center relative z-10 bg-background">
             <h2 className="text-4xl md:text-7xl font-bold tracking-tight mb-12 text-balance leading-tight">
                 Pin24 pe dispozitivul tău
             </h2>
