@@ -134,30 +134,37 @@ export function Categories() {
     };
 
     const handleDeepLink = (path) => {
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isAndroid = /Android/i.test(navigator.userAgent);
+        const ua = navigator.userAgent;
+        const isIOS = /iPhone|iPad|iPod/i.test(ua);
+        const isAndroid = /Android/i.test(ua);
 
-        // Custom URL scheme for the Pin24 app
-        const appScheme = `pin24://${path}`;
-
-        if (isIOS) {
-            window.location.href = appScheme;
-            // Fallback if app is not installed
-            setTimeout(() => {
-                if (document.visibilityState === 'visible') {
-                    window.location.href = "https://apps.apple.com/pl/app/pin24/id6756490803";
-                }
-            }, 2000);
-        } else if (isAndroid) {
-            // Android uses Intents for a smoother 'Open in App' or 'Store' experience
-            const intentUrl = `intent://${path}#Intent;scheme=pin24;package=ro.kobidesign.pin24;end`;
-            window.location.href = intentUrl;
-        } else {
-            // Desktop: Scroll to the install section
+        if (!isIOS && !isAndroid) {
             const installSection = document.getElementById('install-section');
-            if (installSection) {
-                installSection.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (installSection) installSection.scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+
+        const iosStore = "https://apps.apple.com/pl/app/pin24/id6756490803";
+        const androidStore = "https://play.google.com/store/apps/details?id=ro.kobidesign.pin24";
+
+        if (isAndroid) {
+            // Android Intents are the gold standard — instant app opening or store fallback handled by OS
+            window.location.href = `intent://${path}#Intent;scheme=pin24;package=ro.kobidesign.pin24;S.browser_fallback_url=${encodeURIComponent(androidStore)};end`;
+        } else if (isIOS) {
+            // iOS Custom Scheme logic
+            const start = Date.now();
+            window.location.href = `pin24://${path}`;
+
+            // If the app is installed, the browser will background/hide. 
+            // We only redirect if the user is STILL on the page after a short lag.
+            const timer = setTimeout(() => {
+                if (Date.now() - start < 2000 && document.visibilityState === 'visible') {
+                    window.location.href = iosStore;
+                }
+            }, 1200);
+
+            // Kill the timer immediately if the page starts to hide (app is opening)
+            window.addEventListener('pagehide', () => clearTimeout(timer), { once: true });
         }
     };
 
