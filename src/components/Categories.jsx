@@ -133,12 +133,12 @@ export function Categories() {
         setActiveIndex(index);
     };
 
-    const handleExplore = (categoryId) => {
+    const handleDeepLink = (path) => {
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isAndroid = /Android/i.test(navigator.userAgent);
 
         // Custom URL scheme for the Pin24 app
-        const appScheme = `pin24://category/${categoryId}`;
+        const appScheme = `pin24://${path}`;
 
         if (isIOS) {
             window.location.href = appScheme;
@@ -150,7 +150,7 @@ export function Categories() {
             }, 2000);
         } else if (isAndroid) {
             // Android uses Intents for a smoother 'Open in App' or 'Store' experience
-            const intentUrl = `intent://category/${categoryId}#Intent;scheme=pin24;package=ro.kobidesign.pin24;end`;
+            const intentUrl = `intent://${path}#Intent;scheme=pin24;package=ro.kobidesign.pin24;end`;
             window.location.href = intentUrl;
         } else {
             // Desktop: Scroll to the install section
@@ -195,7 +195,7 @@ export function Categories() {
                     {activeCategory.description}
                 </p>
                 <button
-                    onClick={() => handleExplore(activeCategory.id)}
+                    onClick={() => handleDeepLink(`category/${activeCategory.id}`)}
                     className="bg-white/95 backdrop-blur-md text-black px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-black text-sm md:text-base hover:scale-105 transition-transform shadow-2xl animate-in fade-in slide-in-from-left-8 duration-700 delay-200"
                 >
                     Explorează {activeCategory.name}
@@ -212,7 +212,10 @@ export function Categories() {
                     <h3 className="text-white text-3xl md:text-5xl font-black tracking-tighter mb-4">
                         {activeProduct.price}
                     </h3>
-                    <button className="bg-white text-black px-5 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-black hover:scale-105 transition-transform shadow-xl">
+                    <button
+                        onClick={() => handleDeepLink(`product/${activeCategory.id}`)}
+                        className="bg-white text-black px-5 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-black hover:scale-105 transition-transform shadow-xl"
+                    >
                         Vezi detalii
                     </button>
                 </div>
@@ -220,16 +223,20 @@ export function Categories() {
                 {/* Bottom Circular Action Buttons */}
                 <div className="flex gap-3 mb-0">
                     {[
-                        { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-9 h-9 md:w-10 md:h-10', offset: '-translate-x-[15px] translate-y-[5px]' },
-                        { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white/80', invert: true, size: 'w-12 h-12 md:w-13 md:h-13', imgSize: 'w-6 h-6' },
-                        { path: '/UI/conversation.svg', bg: 'bg-white/10', size: 'w-9 h-9 md:w-10 md:h-10', offset: 'translate-x-[15px] translate-y-[5px]' }
+                        { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-9 h-9 md:w-10 md:h-10', offset: '-translate-x-[15px] translate-y-[5px]', link: 'favorites' },
+                        { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white/80', invert: true, size: 'w-12 h-12 md:w-13 md:h-13', imgSize: 'w-6 h-6', link: 'new-ad' },
+                        { path: '/UI/conversation.svg', bg: 'bg-white/10', size: 'w-9 h-9 md:w-10 md:h-10', offset: 'translate-x-[15px] translate-y-[5px]', link: 'chat' }
                     ].map((icon, i) => (
-                        <div key={i} className={cn(
-                            "rounded-full backdrop-blur-xl border border-white/20 flex items-center justify-center cursor-pointer hover:scale-110 transition-all",
-                            icon.bg,
-                            icon.size,
-                            icon.offset
-                        )}>
+                        <div
+                            key={i}
+                            onClick={() => handleDeepLink(icon.link)}
+                            className={cn(
+                                "rounded-full backdrop-blur-xl border border-white/20 flex items-center justify-center cursor-pointer hover:scale-110 transition-all",
+                                icon.bg,
+                                icon.size,
+                                icon.offset
+                            )}
+                        >
                             <img
                                 src={icon.path}
                                 className={cn(
