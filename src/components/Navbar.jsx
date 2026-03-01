@@ -14,6 +14,16 @@ export function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const handleScrollTo = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        } else if (id === 'top') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     const navLinksLeft = ['Categorii', 'Cum funcționează'];
     const navLinksRight = ['Pentru vânzători', 'Suport'];
 
@@ -34,10 +44,7 @@ export function Navbar() {
                 <a
                     href="#"
                     className="hover:scale-105 transition-transform shrink-0"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
+                    onClick={(e) => handleScrollTo(e, 'top')}
                 >
                     <img
                         src="/pin24.svg"
@@ -48,12 +55,20 @@ export function Navbar() {
 
                 {/* Desktop Links (Hidden on Mobile) */}
                 <div className="hidden md:flex items-center gap-12">
-                    <a href="#categories-section" className="text-sm font-medium text-black hover:-translate-y-[1px] transition-transform relative group">
+                    <a
+                        href="#categories-section"
+                        onClick={(e) => handleScrollTo(e, 'categories-section')}
+                        className="text-sm font-medium text-black hover:-translate-y-[1px] transition-transform relative group"
+                    >
                         Categorii
                         <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
                     </a>
 
-                    <a href="#install-section" className="text-sm font-semibold bg-black text-white px-8 py-2.5 rounded-full hover:scale-105 transition-transform duration-300 shadow-sm">
+                    <a
+                        href="#install-section"
+                        onClick={(e) => handleScrollTo(e, 'install-section')}
+                        className="text-sm font-semibold bg-black text-white px-8 py-2.5 rounded-full hover:scale-105 transition-transform duration-300 shadow-sm"
+                    >
                         Descarcă
                     </a>
                 </div>
@@ -61,6 +76,7 @@ export function Navbar() {
                 {/* Mobile Button (Visible only on small screens) */}
                 <a
                     href="#install-section"
+                    onClick={(e) => handleScrollTo(e, 'install-section')}
                     className="md:hidden text-xs font-bold bg-black text-white px-5 py-2 rounded-full hover:scale-105 transition-transform duration-300 shadow-sm"
                 >
                     Descarcă

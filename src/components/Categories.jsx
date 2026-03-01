@@ -148,12 +148,12 @@ export function Categories() {
         const androidStore = "https://play.google.com/store/apps/details?id=ro.kobidesign.pin24";
 
         if (isAndroid) {
-            // Android Intents are the gold standard — instant app opening or store fallback handled by OS
-            window.location.href = `intent://${path}#Intent;scheme=pin24;package=ro.kobidesign.pin24;S.browser_fallback_url=${encodeURIComponent(androidStore)};end`;
+            // Simplify to base scheme to ensure app opens successfully
+            window.location.href = `intent://#Intent;scheme=pin24;package=ro.kobidesign.pin24;S.browser_fallback_url=${encodeURIComponent(androidStore)};end`;
         } else if (isIOS) {
             // iOS Custom Scheme logic
             const start = Date.now();
-            window.location.href = `pin24://${path}`;
+            window.location.href = `pin24://`; // Opening at root to prevent path errors
 
             // If the app is installed, the browser will background/hide. 
             // We only redirect if the user is STILL on the page after a short lag.
