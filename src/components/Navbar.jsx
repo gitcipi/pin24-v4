@@ -16,6 +16,9 @@ export function Navbar() {
 
     const handleScrollTo = (e, id) => {
         e.preventDefault();
+        // Signal the Hero to unlock immediately
+        window.dispatchEvent(new CustomEvent('pin24-unlock'));
+
         const element = document.getElementById(id);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });

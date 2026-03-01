@@ -62,9 +62,22 @@ export function Hero() {
             document.documentElement.style.overflow = '';
         };
 
-        // Initial lock
-        lock();
-        window.scrollTo(0, 0);
+        const unlockInternal = () => {
+            if (hasCompleted.current) return;
+            hasCompleted.current = true;
+            state.current = 'portrait';
+            if (tl) tl.progress(1);
+            unlock();
+        };
+
+        // Initial lock - only if we haven't completed before
+        if (!hasCompleted.current) {
+            lock();
+            window.scrollTo(0, 0);
+        }
+
+        // Listen for external unlock signals (from Navbar, etc)
+        window.addEventListener('pin24-unlock', unlockInternal);
 
         const init = () => {
             if (tl) tl.kill();
