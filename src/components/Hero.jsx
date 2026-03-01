@@ -314,7 +314,7 @@ export function Hero() {
     }, [canAnimate]);
 
     return (
-        <section ref={comp} className="w-full h-[100dvh] bg-white overflow-hidden relative">
+        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative">
             <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-center z-[50] text-center px-6 pointer-events-none">
                 <h1 className="text-white text-4xl sm:text-7xl lg:text-9xl font-black leading-[1.1] mb-6 drop-shadow-2xl">
                     Lumea ta, Pin24.
