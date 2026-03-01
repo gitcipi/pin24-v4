@@ -31,7 +31,14 @@ export function Navbar() {
                     : "bg-white border-white/10 shadow-sm"
             )}>
                 {/* Logo Left */}
-                <a href="#" className="hover:scale-105 transition-transform shrink-0">
+                <a
+                    href="#"
+                    className="hover:scale-105 transition-transform shrink-0"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                >
                     <img
                         src="/pin24.svg"
                         alt="Pin24 Logo"
