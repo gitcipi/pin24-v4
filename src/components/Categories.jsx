@@ -137,7 +137,7 @@ export function Categories() {
     const activeProduct = activeCategory.products[0];
 
     return (
-        <section id="categories-section" className="relative h-[100dvh] w-full overflow-hidden flex flex-col items-center bg-black">
+        <section id="categories-section" className="relative h-screen w-full overflow-hidden flex flex-col items-center bg-black">
             {/* Background Images - 100% Opacity, NO BLUR */}
             {CATEGORIES.map((cat, i) => (
                 <div

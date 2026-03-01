@@ -11,7 +11,9 @@ function App() {
     <div className="bg-background text-foreground min-h-screen selection:bg-accent selection:text-white">
       <Navbar />
       <main>
-        <Hero />
+        <div className="h-screen overflow-hidden">
+          <Hero />
+        </div>
         <Categories />
         <Philosophy />
         <Install />
