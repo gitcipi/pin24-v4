@@ -11,21 +11,21 @@ const Card = ({ innerRef, image, title, icon: Icon, color, zIndex = 30 }) => (
         style={{ zIndex }}
     >
         <img src={image} className="absolute inset-0 w-full h-full object-cover object-top" alt={title} />
-        <div className="absolute left-3 right-3 bottom-3 md:left-4 md:right-4 md:bottom-4 lg:left-5 lg:right-5 lg:bottom-5 bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-4 flex items-center justify-between shadow-none transition-all">
+        <div className="absolute left-3 right-3 bottom-3 md:left-4 md:right-4 md:bottom-4 lg:left-5 lg:right-5 lg:bottom-5 bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-4 flex items-center justify-between shadow-none">
             <div className="flex items-center gap-2 md:gap-3">
-                <div className={`${color} w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 transition-all`}>
+                <div className={`${color} w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0`}>
                     {typeof Icon === 'string' ? (
-                        <img src={Icon} alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert transition-all" />
+                        <img src={Icon} alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert" />
                     ) : (
-                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-white transition-all" />
+                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                     )}
                 </div>
                 <div className="text-left">
-                    <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel transition-all leading-tight">{title}</p>
-                    <p className="text-[9px] md:text-[10px] text-gray-500 font-medium transition-all">Video Feed</p>
+                    <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel leading-tight">{title}</p>
+                    <p className="text-[9px] md:text-[10px] text-gray-500 font-medium">Video Feed</p>
                 </div>
             </div>
-            <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter transition-all">LIVE</p>
+            <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter">LIVE</p>
         </div>
     </div>
 );
@@ -94,7 +94,7 @@ export function Hero() {
             const rect = comp.current.getBoundingClientRect();
 
             const cardH = isMobile
-                ? Math.max(280, Math.min(rect.height * 0.45, 420))
+                ? 380 // Fixed height for mobile to prevent address bar resizing issues
                 : Math.max(380, Math.min(rect.height * 0.52, 1200));
             const cardW = cardH * 0.75;
 
@@ -371,17 +371,17 @@ export function Hero() {
                     alt="Pin24 Hero"
                 />
 
-                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center justify-between rounded-2xl p-3 md:p-4 lg:p-4 shadow-none transition-all">
+                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center justify-between rounded-2xl p-3 md:p-4 lg:p-4 shadow-none">
                     <div className="flex items-center gap-2 md:gap-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 bg-yellow-500 transition-all">
-                            <img src="/categories/jobs.png" alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert transition-all" />
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 bg-yellow-500">
+                            <img src="/categories/jobs.png" alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert" />
                         </div>
                         <div className="text-left">
-                            <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel transition-all leading-tight">Angajezi</p>
-                            <p className="text-[9px] md:text-[10px] text-gray-500 font-medium transition-all">Video Feed</p>
+                            <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel leading-tight">Angajezi</p>
+                            <p className="text-[9px] md:text-[10px] text-gray-500 font-medium">Video Feed</p>
                         </div>
                     </div>
-                    <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter transition-all">LIVE</p>
+                    <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter">LIVE</p>
                 </div>
             </div>
 
