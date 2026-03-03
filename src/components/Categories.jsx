@@ -179,7 +179,7 @@ export function Categories() {
         <section
             id="categories-section"
             ref={sectionRef}
-            className="relative h-[100dvh] w-full overflow-hidden flex flex-col items-center bg-black font-onest"
+            className="relative py-20 w-full flex flex-col items-center bg-black font-onest"
         >
             {/* Background Images */}
             {CATEGORIES.map((cat, i) => (
