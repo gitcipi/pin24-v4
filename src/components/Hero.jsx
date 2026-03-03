@@ -94,11 +94,16 @@ export function Hero() {
             const rect = comp.current.getBoundingClientRect();
 
             const cardH = isMobile
-                ? Math.min(rect.height * 0.55, 480)
-                : Math.min(rect.height * 0.55, 550);
+                ? Math.max(280, Math.min(rect.height * 0.50, 480))
+                : Math.max(350, Math.min(rect.height * 0.55, rect.width * 0.35, 750));
             const cardW = cardH * 0.75;
 
-            const bottomInsetPx = isMobile ? 5 : 20;
+            // Calculate vertical centering instead of anchoring to the bottom
+            const minBottom = isMobile ? 5 : 20;
+            const textSpace = isMobile ? 120 : 180; // Approximate height the text takes above the card
+            let bottomInsetPx = (rect.height - cardH - textSpace) / 2;
+            if (bottomInsetPx < minBottom) bottomInsetPx = minBottom;
+
             const topInsetPx = rect.height - cardH - bottomInsetPx;
             const leftInsetPx = (rect.width - cardW) / 2;
             const rightInsetPx = leftInsetPx;
@@ -123,7 +128,14 @@ export function Hero() {
                 borderRadius: '32px', borderWidth: '2.5px',
                 borderColor: 'rgba(255, 255, 255, 0.4)'
             });
-            gsap.set(hero1Text.current, { opacity: 1, y: 0, scale: 1 });
+            gsap.set(hero1Text.current, {
+                opacity: 1, y: 0, scale: 1,
+                // Fixed physical distance from the outline top
+                top: topInsetPx,
+                yPercent: -100,
+                marginTop: -gapBetweenTextAndCard,
+                bottom: 'auto'
+            });
             gsap.set(cardRefs[0].current, {
                 opacity: 0, scale: 0.5, xPercent: -200, yPercent: -50,
                 left: '50%', top: '50%', pointerEvents: 'none',
@@ -135,6 +147,14 @@ export function Hero() {
                 width: cardW, height: cardH,
             });
             gsap.set('.hero-final-text', { opacity: 0, y: 20 });
+
+            // Position final text a FIXED distance above card top (never drifts)
+            gsap.set('.hero-final-text-wrapper', {
+                top: topInsetPx,
+                yPercent: -100,
+                y: -gapBetweenTextAndCard,
+                bottom: 'auto',
+            });
 
             // ── Timeline: landscape → portrait ──
             tl = gsap.timeline({ paused: true });
@@ -313,11 +333,11 @@ export function Hero() {
     return (
         <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest">
             {/* Initial Text Overlay */}
-            <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-start pt-[12vh] z-[50] text-center px-6 pointer-events-none">
-                <h1 className="text-black text-5xl sm:text-7xl lg:text-8xl font-black leading-[1.05] mb-6 font-onest">
+            <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center justify-end z-[50] text-center px-4 sm:px-6 pointer-events-none origin-bottom">
+                <h1 className="text-white drop-shadow-lg text-[2.5rem] leading-tight sm:text-7xl lg:text-8xl font-extrabold sm:leading-[1.05] mb-4 sm:mb-6 font-onest">
                     Mai puține vorbe.<br />Mai mult video.
                 </h1>
-                <p className="text-gray-900 text-lg sm:text-2xl font-semibold max-w-2xl opacity-90">
+                <p className="text-white/90 drop-shadow-md text-base sm:text-2xl font-medium max-w-2xl px-2">
                     Un marketplace cu vibe de social: vezi video full-screen, dai share și urmărești favoriții.
                 </p>
             </div>
@@ -328,7 +348,7 @@ export function Hero() {
                 <img
                     ref={heroImgEl}
                     src={heroImage}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-[center_90%]"
                     alt="Pin24 Hero"
                 />
 
@@ -346,12 +366,12 @@ export function Hero() {
                 </div>
             </div>
 
-            {/* Final Background Text */}
-            <div className="absolute z-10 top-[20%] lg:top-[25%] text-center w-full px-6 pointer-events-none">
-                <h2 className="hero-final-text text-4xl sm:text-6xl font-black text-gray-900 mb-4 opacity-0 font-onest tracking-tight">
+            {/* Final Background Text — positioned by GSAP relative to card */}
+            <div className="hero-final-text-wrapper absolute z-10 text-center w-full px-4 sm:px-6 pointer-events-none origin-bottom">
+                <h2 className="hero-final-text text-3xl sm:text-6xl font-black text-gray-900 mb-3 sm:mb-4 opacity-0 font-onest tracking-tight">
                     Pin24, reimaginat.
                 </h2>
-                <p className="hero-final-text text-gray-500 font-medium text-lg sm:text-xl opacity-0 max-w-xl mx-auto font-onest leading-snug">
+                <p className="hero-final-text text-gray-500 font-medium text-base sm:text-xl opacity-0 max-w-xl mx-auto font-onest leading-snug px-2">
                     Descoperă anunțuri video full-screen și urmărește ceea ce te interesează cu adevărat.
                 </p>
             </div>
