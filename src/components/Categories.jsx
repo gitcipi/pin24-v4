@@ -265,7 +265,7 @@ export function Categories() {
                 </div>
 
                 {/* BOTTOM ANCHORED: Pill Switcher */}
-                <div className="w-full flex flex-col items-center shrink-0 pb-[clamp(1rem,4vh,3rem)] pt-2 mt-auto">
+                <div className="w-full flex flex-col items-center shrink-0 pb-4 pt-2 mt-auto">
                     <div className="flex flex-nowrap gap-2 md:gap-3 justify-center overflow-x-auto no-scrollbar px-2 max-w-full w-full">
                         {CATEGORIES.map((cat, index) => {
                             const isActive = index === activeIndex;
