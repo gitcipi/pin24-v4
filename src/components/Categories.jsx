@@ -212,9 +212,9 @@ export function Categories() {
                     </p>
                 </div>
 
-                {/* Central Card — flex-1 + min-h-0 lets it shrink; aspect-[3/4] on inner keeps ratio */}
+                {/* Central Card */}
                 <div className="flex-1 min-h-0 flex items-center justify-center w-full">
-                    <div className="relative h-full max-h-[600px] aspect-[3/4] max-w-[90vw] rounded-[2rem] md:rounded-[3rem] bg-black/10 backdrop-blur-xl flex flex-col items-center justify-center text-center overflow-hidden border border-white/20 shadow-2xl">
+                    <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[450px] aspect-[3/4] max-h-[55vh] md:max-h-[600px] rounded-[2rem] md:rounded-[3rem] bg-black/10 backdrop-blur-xl flex flex-col items-center justify-center text-center overflow-hidden border border-white/20 shadow-2xl shrink-0 my-auto">
                         <div className="p-4 md:p-10 flex flex-col items-center justify-center h-full w-full">
                             <p className="text-white/60 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-1 md:mb-4 font-funnel">{activeProduct.label}</p>
                             <h3 className="text-white text-[clamp(1.5rem,6vw,4.5rem)] font-black tracking-tighter mb-3 md:mb-10 font-funnel leading-none">

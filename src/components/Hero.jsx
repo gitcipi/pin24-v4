@@ -227,11 +227,17 @@ export function Hero() {
         let touchHandled = false;
         const handleTouchStart = (e) => { touchStartY = e.touches[0].clientY; touchHandled = false; };
         const handleTouchMove = (e) => {
-            if (touchHandled || isAnimating.current) return;
+            if (isAnimating.current) {
+                e.preventDefault();
+                return;
+            }
+            if (touchHandled) return;
+
             const dy = touchStartY - e.touches[0].clientY;
             if (hasCompleted.current && state.current === 'portrait') {
                 if (window.scrollY < 10) document.body.style.overscrollBehaviorY = 'none';
                 else document.body.style.overscrollBehaviorY = '';
+
                 if (dy < -10 && window.scrollY < 5) {
                     touchHandled = true;
                     e.preventDefault();
@@ -249,9 +255,16 @@ export function Hero() {
         let pointerStartY = 0;
         const handlePointerDown = (e) => { pointerStartY = e.clientY; };
         const handlePointerMove = (e) => {
-            if (e.pointerType === 'touch' || e.buttons !== 1 || isAnimating.current) return;
+            if (e.pointerType === 'touch' || e.buttons !== 1) return;
+            if (isAnimating.current) {
+                e.preventDefault();
+                return;
+            }
             const dy = pointerStartY - e.clientY;
-            if (dy > 15 && state.current === 'landscape') playForward();
+            if (dy > 15 && state.current === 'landscape') {
+                e.preventDefault();
+                playForward();
+            }
         };
 
         let lastHeight = window.innerHeight;
@@ -334,7 +347,7 @@ export function Hero() {
             </div>
 
             {/* Final Background Text */}
-            <div className="absolute z-10 top-[12%] lg:top-[16%] text-center w-full px-6 pointer-events-none">
+            <div className="absolute z-10 top-[20%] lg:top-[25%] text-center w-full px-6 pointer-events-none">
                 <h2 className="hero-final-text text-4xl sm:text-6xl font-black text-gray-900 mb-4 opacity-0 font-onest tracking-tight">
                     Pin24, reimaginat.
                 </h2>
