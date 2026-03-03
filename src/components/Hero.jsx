@@ -94,11 +94,11 @@ export function Hero() {
             const rect = comp.current.getBoundingClientRect();
 
             const cardH = isMobile
-                ? 380 // Fixed height for mobile to prevent address bar resizing issues
+                ? 420 // Increased height for better visibility
                 : Math.max(380, Math.min(rect.height * 0.52, 1200));
             const cardW = cardH * 0.75;
 
-            const bottomInsetPx = isMobile ? 10 : 30;
+            const bottomInsetPx = isMobile ? (rect.height * 0.1) : 30; // 10% from bottom on mobile
             const topInsetPx = rect.height - cardH - bottomInsetPx;
             const leftInsetPx = (rect.width - cardW) / 2;
             const rightInsetPx = leftInsetPx;
@@ -182,9 +182,9 @@ export function Hero() {
                 duration: 0.8, ease: 'power3.inOut',
             }, 0.05);
 
-            // Image zooms in 20% during scroll for a dynamic crop effect
+            // Removed scale animation to prevent image resizing issues across browsers
             tl.to(heroImgEl.current, {
-                scale: 1.2, duration: 0.8, ease: 'power3.inOut',
+                scale: 1, duration: 0.8, ease: 'power3.inOut',
             }, 0.05);
 
             // Snappy appearance & quicker disappearance
@@ -350,7 +350,7 @@ export function Hero() {
 
 
     return (
-        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest">
+        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest touch-none" style={{ overscrollBehaviorY: 'none' }}>
             {/* Initial Text Overlay */}
             <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center z-[50] text-center px-4 sm:px-6 pointer-events-none">
                 <h1 className="text-white drop-shadow-lg text-[2.5rem] leading-tight sm:text-7xl lg:text-8xl font-extrabold sm:leading-[1.05] mb-4 sm:mb-6 font-onest">
