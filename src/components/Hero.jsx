@@ -94,15 +94,21 @@ export function Hero() {
             const rect = comp.current.getBoundingClientRect();
 
             const cardH = isMobile
-                ? Math.max(280, Math.min(rect.height * 0.50, 480))
-                : Math.max(350, Math.min(rect.height * 0.55, rect.width * 0.35, 750));
+                ? Math.max(280, Math.min(rect.height * 0.45, 420))
+                : Math.max(380, Math.min(rect.height * 0.50, 1200));
             const cardW = cardH * 0.75;
 
-            const bottomInsetPx = isMobile ? 5 : 20;
+            const bottomInsetPx = isMobile ? 10 : 30;
             const topInsetPx = rect.height - cardH - bottomInsetPx;
             const leftInsetPx = (rect.width - cardW) / 2;
             const rightInsetPx = leftInsetPx;
             const ft = `${rect.height - (cardH / 2) - bottomInsetPx}px`;
+
+
+            const headerSpace = isMobile ? 70 : 110;
+            const titleSafeZoneHeight = topInsetPx - headerSpace;
+            const isTitleSafe = titleSafeZoneHeight > 50;
+            const isOutlineSafe = topInsetPx > headerSpace;
 
             // ── ALWAYS set to LANDSCAPE (start) state ──
             gsap.set(heroImageRef.current, {
@@ -115,21 +121,39 @@ export function Hero() {
                 bottom: `${bottomInsetPx + 16}px`,
                 left: '50%', xPercent: -50,
             });
+
             // Outline is static at card size (no animation)
             gsap.set('.hero-mask-outline', {
-                opacity: 1,
+                opacity: isOutlineSafe ? 1 : 0,
                 top: topInsetPx, left: leftInsetPx,
                 width: cardW, height: cardH,
                 borderRadius: '32px', borderWidth: '2.5px',
-                borderColor: 'rgba(255, 255, 255, 0.4)'
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+                visibility: isOutlineSafe ? 'visible' : 'hidden'
             });
-            gsap.set(hero1Text.current, {
-                opacity: 1, y: 0, scale: 1,
-                // Bottom edge of text sits exactly textGap px above card top
-                top: topInsetPx,
-                yPercent: -100,
-                marginTop: isMobile ? -20 : -40,
+
+            const textStyles = {
+                top: headerSpace,
+                height: Math.max(0, titleSafeZoneHeight),
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                paddingBottom: isMobile ? 10 : 20,
+                scale: Math.min(1, Math.max(0.4, titleSafeZoneHeight / (isMobile ? 220 : 400))),
+                transformOrigin: 'center center',
+                visibility: isTitleSafe ? 'visible' : 'hidden',
+                opacity: isTitleSafe ? 1 : 0
+            };
+
+            gsap.set(hero1Text.current, textStyles);
+
+            // Unify final text wrapper with same space
+            gsap.set('.hero-final-text-wrapper', {
+                ...textStyles,
+                opacity: 1, // Wrapper is always opacity 1
+                justifyContent: 'center'
             });
+
             gsap.set(cardRefs[0].current, {
                 opacity: 0, scale: 0.5, xPercent: -200, yPercent: -50,
                 left: '50%', top: '50%', pointerEvents: 'none',
@@ -142,13 +166,8 @@ export function Hero() {
             });
             gsap.set('.hero-final-text', { opacity: 0, y: 20 });
 
-            // Position final text a FIXED distance above card top (never drifts)
-            const textGap = isMobile ? 30 : 60;
-            gsap.set('.hero-final-text-wrapper', {
-                top: topInsetPx,
-                yPercent: -100,
-                y: -textGap,
-            });
+            // Adjust background image to show higher up (top aligned)
+            gsap.set(heroImgEl.current, { objectPosition: 'center 0%' });
 
             // ── Timeline: landscape → portrait ──
             tl = gsap.timeline({ paused: true });
@@ -171,6 +190,11 @@ export function Hero() {
             tl.to(cardFooterRef.current, {
                 opacity: 1, y: 0, duration: 0.3, ease: 'power2.out',
             }, 0.4);
+
+            // Fade out the outline so it disappears as the image zooms in
+            tl.to('.hero-mask-outline', {
+                opacity: 0, duration: 0.4, ease: 'power2.inOut',
+            }, 0.5);
 
             if (!isMobile) {
                 tl.to(cardRefs[0].current, {
@@ -327,7 +351,7 @@ export function Hero() {
     return (
         <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest">
             {/* Initial Text Overlay */}
-            <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center justify-start z-[50] text-center px-4 sm:px-6 pointer-events-none">
+            <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center z-[50] text-center px-4 sm:px-6 pointer-events-none">
                 <h1 className="text-white drop-shadow-lg text-[2.5rem] leading-tight sm:text-7xl lg:text-8xl font-extrabold sm:leading-[1.05] mb-4 sm:mb-6 font-onest">
                     Mai puține vorbe.<br />Mai mult video.
                 </h1>
@@ -342,7 +366,7 @@ export function Hero() {
                 <img
                     ref={heroImgEl}
                     src={heroImage}
-                    className="w-full h-full object-cover object-[center_90%]"
+                    className="w-full h-full object-cover object-top"
                     alt="Pin24 Hero"
                 />
 

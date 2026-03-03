@@ -199,68 +199,69 @@ export function Categories() {
                 </div>
             ))}
 
-            {/* Flow Layout Container — gap ensures no overlapping at any size */}
-            <div className="relative z-20 w-full h-full flex flex-col items-center justify-between gap-4 pt-[clamp(1.5rem,8%,5rem)] pb-[clamp(0.5rem,4%,2rem)] px-4 overflow-hidden">
+            {/* Revolut-style Edge-Anchored Layout */}
+            <div className="relative z-20 w-full h-full flex flex-col items-center overflow-hidden px-4">
 
-                {/* Header Area — shrink-0 keeps its height, text scales down */}
-                <div className="w-full max-w-4xl text-center shrink-0">
-                    <h2 className="text-white text-[clamp(1.5rem,5vw,4.5rem)] font-black mb-1 md:mb-4 tracking-tight animate-in fade-in zoom-in-95 duration-700 font-onest leading-tight">
+                {/* TOP ANCHORED: Header Area */}
+                <div className="w-full max-w-4xl text-center pt-[clamp(1.5rem,8vh,5rem)] mb-4 shrink-0">
+                    <h2 className="text-white text-[clamp(1.5rem,5vw,4.5rem)] font-black mb-1 md:mb-2 tracking-tight animate-in fade-in zoom-in-95 duration-700 font-onest leading-tight">
                         {activeCategory.title}
                     </h2>
-                    <p className="hidden md:block text-sm md:text-xl text-white/80 font-medium leading-relaxed max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 font-onest">
+                    <p className="hidden md:block text-sm md:text-lg text-white/70 font-medium leading-relaxed max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 font-onest">
                         {activeCategory.description}
                     </p>
                 </div>
 
-                {/* Central Card */}
-                <div className="flex-1 min-h-0 flex items-center justify-center w-full">
-                    <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[450px] aspect-[3/4] max-h-[55vh] md:max-h-[600px] rounded-[2rem] md:rounded-[3rem] bg-black/10 backdrop-blur-xl flex flex-col items-center justify-center text-center overflow-hidden border border-white/20 shadow-2xl shrink-0 my-auto">
-                        <div className="p-4 md:p-10 flex flex-col items-center justify-center h-full w-full">
-                            <p className="text-white/60 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-1 md:mb-4 font-funnel">{activeProduct.label}</p>
-                            <h3 className="text-white text-[clamp(1.5rem,6vw,4.5rem)] font-black tracking-tighter mb-3 md:mb-10 font-funnel leading-none">
+                {/* CENTERED: Floating Central Card */}
+                <div className="flex-1 w-full flex items-center justify-center min-h-0 relative">
+                    <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[450px] max-h-[90%] aspect-[3/4.2] rounded-[2.5rem] md:rounded-[3rem] bg-black/10 flex flex-col items-center justify-center text-center overflow-hidden border border-white/20 shadow-2xl transition-all duration-300">
+                        {/* Internal Content Scaling Wrapper */}
+                        <div className="p-4 md:p-8 flex flex-col items-center justify-center h-full w-full transform scale-[0.9] sm:scale-100 origin-center">
+                            <p className="text-white/60 text-[10px] md:text-sm uppercase font-bold tracking-widest mb-1 md:mb-4 font-funnel">{activeProduct.label}</p>
+                            <h3 className="text-white text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 md:mb-10 font-funnel leading-none">
                                 {activeProduct.price}
                             </h3>
                             <button
                                 onClick={() => handleDeepLink(`product/${activeCategory.id}`)}
-                                className="bg-white text-black px-6 py-2 md:px-12 md:py-5 rounded-full text-xs md:text-lg font-black hover:scale-105 transition-transform font-onest"
+                                className="bg-white text-black px-6 py-2 md:px-12 md:py-5 rounded-full text-xs md:text-lg font-black hover:scale-105 transition-transform font-onest mb-5 md:mb-10 shrink-0"
                             >
                                 Vezi detalii
                             </button>
-                        </div>
 
-                        {/* Bottom Circular Action Buttons */}
-                        <div className="absolute bottom-3 md:bottom-6 flex gap-3 md:gap-6 items-center">
-                            {[
-                                { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-12 md:h-12', link: 'favorites' },
-                                { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white', invert: true, size: 'w-10 h-10 md:w-16 md:h-16', imgSize: 'w-5 h-5 md:w-8 md:h-8', link: 'new-ad' },
-                                { path: '/UI/conversation.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-12 md:h-12', link: 'chat' }
-                            ].map((icon, i) => (
-                                <div
-                                    key={i}
-                                    onClick={() => handleDeepLink(icon.link)}
-                                    className={cn(
-                                        "rounded-full backdrop-blur-xl border border-white/10 flex items-center justify-center cursor-pointer hover:scale-110 transition-all shadow-none",
-                                        icon.bg,
-                                        icon.size
-                                    )}
-                                >
-                                    <img
-                                        src={icon.path}
+                            {/* Bottom Circular Action Buttons */}
+                            <div className="flex gap-3 md:gap-5 items-center shrink-0">
+                                {[
+                                    { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-11 md:h-11', link: 'favorites' },
+                                    { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white', invert: true, size: 'w-10 h-10 md:w-15 md:h-15', imgSize: 'w-5 h-5 md:w-7 md:h-7', link: 'new-ad' },
+                                    { path: '/UI/conversation.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-11 md:h-11', link: 'chat' }
+                                ].map((icon, i) => (
+                                    <div
+                                        key={i}
+                                        onClick={() => handleDeepLink(icon.link)}
                                         className={cn(
-                                            icon.imgSize || "w-4 h-4 md:w-6 md:h-6",
-                                            icon.invert ? "brightness-0" : "brightness-0 invert"
+                                            "rounded-full backdrop-blur-xl border border-white/10 flex items-center justify-center cursor-pointer hover:scale-110 transition-all",
+                                            icon.bg,
+                                            icon.size
                                         )}
-                                        alt=""
-                                    />
-                                </div>
-                            ))}
+                                    >
+                                        <img
+                                            src={icon.path}
+                                            className={cn(
+                                                icon.imgSize || "w-4 h-4 md:w-5 md:h-5",
+                                                icon.invert ? "brightness-0" : "brightness-0 invert"
+                                            )}
+                                            alt=""
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Category Pill Switcher — shrink-0 keeps its height */}
-                <div className="w-full flex flex-col items-center shrink-0">
-                    <div className="flex flex-nowrap gap-2 md:gap-4 justify-center overflow-x-auto no-scrollbar py-2 md:py-4 px-2 md:px-16 max-w-full w-full">
+                {/* BOTTOM ANCHORED: Pill Switcher */}
+                <div className="w-full flex flex-col items-center shrink-0 pb-[clamp(1rem,4vh,3rem)] pt-2 mt-auto">
+                    <div className="flex flex-nowrap gap-2 md:gap-3 justify-center overflow-x-auto no-scrollbar px-2 max-w-full w-full">
                         {CATEGORIES.map((cat, index) => {
                             const isActive = index === activeIndex;
                             return (
@@ -268,10 +269,10 @@ export function Categories() {
                                     <button
                                         onClick={() => handleCategoryClick(index)}
                                         className={cn(
-                                            "px-3 py-2 md:px-8 md:py-4 rounded-full text-[10px] md:text-sm font-black transition-all relative border flex items-center gap-1.5 md:gap-3 overflow-hidden shadow-none",
+                                            "px-4 py-2 md:px-7 md:py-3.5 rounded-full text-[10px] md:text-sm font-bold transition-all relative border flex items-center gap-2 md:gap-3 overflow-hidden",
                                             isActive
-                                                ? "bg-white text-black border-white scale-105 z-10"
-                                                : "bg-black/30 text-white/70 border-white/10 hover:border-white/30 hover:text-white"
+                                                ? "bg-white text-black border-white scale-105"
+                                                : "bg-black/40 text-white/70 border-white/10 hover:border-white/30"
                                         )}
                                     >
                                         {isActive && (
@@ -281,16 +282,12 @@ export function Categories() {
                                                 style={{ transformOrigin: 'left center' }}
                                             />
                                         )}
-
                                         <img
                                             src={cat.icon}
-                                            className={cn(
-                                                "w-3.5 h-3.5 md:w-5 md:h-5 transition-all shrink-0",
-                                                isActive ? "brightness-0" : "brightness-0 invert opacity-70"
-                                            )}
+                                            className={cn("w-3.5 h-3.5 md:w-5 md:h-5", isActive ? "brightness-0" : "brightness-0 invert opacity-70")}
                                             alt=""
                                         />
-                                        <span className="whitespace-nowrap font-funnel uppercase tracking-tight hidden min-[1150px]:inline">{cat.name}</span>
+                                        <span className="whitespace-nowrap font-onest uppercase tracking-wide hidden sm:inline">{cat.name}</span>
                                     </button>
                                 </div>
                             );
