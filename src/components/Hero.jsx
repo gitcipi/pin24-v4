@@ -139,7 +139,9 @@ export function Hero() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 paddingBottom: isMobile ? 10 : 20,
-                scale: Math.min(1, Math.max(0.4, titleSafeZoneHeight / (isMobile ? 220 : 400))),
+                scale: isMobile
+                    ? Math.max(0.7, titleSafeZoneHeight / 280) // Larger minimum scale for mobile
+                    : Math.min(1, Math.max(0.4, titleSafeZoneHeight / 400)),
                 transformOrigin: 'center center',
                 visibility: isTitleSafe ? 'visible' : 'hidden',
                 opacity: isTitleSafe ? 1 : 0
@@ -350,13 +352,13 @@ export function Hero() {
 
 
     return (
-        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest touch-none" style={{ overscrollBehaviorY: 'none' }}>
+        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest" style={{ overscrollBehaviorY: 'none' }}>
             {/* Initial Text Overlay */}
             <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center z-[50] text-center px-4 sm:px-6 pointer-events-none">
-                <h1 className="text-white drop-shadow-lg text-[2.5rem] leading-tight sm:text-7xl lg:text-8xl font-extrabold sm:leading-[1.05] mb-4 sm:mb-6 font-onest">
+                <h1 className="text-white drop-shadow-lg text-[2.8rem] leading-[1.1] sm:text-7xl lg:text-8xl font-black mb-4 sm:mb-6 font-onest">
                     Mai puține vorbe.<br />Mai mult video.
                 </h1>
-                <p className="text-white/90 drop-shadow-md text-base sm:text-2xl font-medium max-w-2xl px-2">
+                <p className="text-white/90 drop-shadow-md text-lg sm:text-2xl font-bold max-w-2xl px-2">
                     Un marketplace cu vibe de social: vezi video full-screen, dai share și urmărești favoriții.
                 </p>
             </div>
