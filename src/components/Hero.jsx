@@ -11,21 +11,21 @@ const Card = ({ innerRef, image, title, icon: Icon, color, zIndex = 30 }) => (
         style={{ zIndex }}
     >
         <img src={image} className="absolute inset-0 w-full h-full object-cover object-top" alt={title} />
-        <div className="absolute left-4 right-4 bottom-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between shadow-none">
-            <div className="flex items-center gap-3">
-                <div className={`${color} w-9 h-9 rounded-full flex items-center justify-center shrink-0`}>
+        <div className="absolute left-3 right-3 bottom-3 md:left-4 md:right-4 md:bottom-4 lg:left-5 lg:right-5 lg:bottom-5 bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-4 flex items-center justify-between shadow-none transition-all">
+            <div className="flex items-center gap-2 md:gap-3">
+                <div className={`${color} w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 transition-all`}>
                     {typeof Icon === 'string' ? (
-                        <img src={Icon} alt="" className="w-5 h-5 brightness-0 invert" />
+                        <img src={Icon} alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert transition-all" />
                     ) : (
-                        <Icon className="w-5 h-5 text-white" />
+                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-white transition-all" />
                     )}
                 </div>
                 <div className="text-left">
-                    <p className="text-[12px] font-bold text-black uppercase tracking-tight font-funnel">{title}</p>
-                    <p className="text-[10px] text-gray-500 font-medium">Video Feed</p>
+                    <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel transition-all leading-tight">{title}</p>
+                    <p className="text-[9px] md:text-[10px] text-gray-500 font-medium transition-all">Video Feed</p>
                 </div>
             </div>
-            <p className="text-sm font-black text-black font-funnel tracking-tighter">LIVE</p>
+            <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter transition-all">LIVE</p>
         </div>
     </div>
 );
@@ -95,7 +95,7 @@ export function Hero() {
 
             const cardH = isMobile
                 ? Math.max(280, Math.min(rect.height * 0.45, 420))
-                : Math.max(380, Math.min(rect.height * 0.50, 1200));
+                : Math.max(380, Math.min(rect.height * 0.52, 1200));
             const cardW = cardH * 0.75;
 
             const bottomInsetPx = isMobile ? 10 : 30;
@@ -166,8 +166,8 @@ export function Hero() {
             });
             gsap.set('.hero-final-text', { opacity: 0, y: 20 });
 
-            // Adjust background image to show higher up (top aligned)
-            gsap.set(heroImgEl.current, { objectPosition: 'center 0%' });
+            // Fine-tuned background position: 200px lower and 50px left
+            gsap.set(heroImgEl.current, { objectPosition: '48% 35%' });
 
             // ── Timeline: landscape → portrait ──
             tl = gsap.timeline({ paused: true });
@@ -187,9 +187,10 @@ export function Hero() {
                 scale: 1.2, duration: 0.8, ease: 'power3.inOut',
             }, 0.05);
 
+            // Snappy appearance & quicker disappearance
             tl.to(cardFooterRef.current, {
-                opacity: 1, y: 0, duration: 0.3, ease: 'power2.out',
-            }, 0.4);
+                opacity: 1, y: 0, duration: 0.3, ease: 'power3.out',
+            }, 0.2);
 
             // Fade out the outline so it disappears as the image zooms in
             tl.to('.hero-mask-outline', {
@@ -366,21 +367,21 @@ export function Hero() {
                 <img
                     ref={heroImgEl}
                     src={heroImage}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-[48%_35%]"
                     alt="Pin24 Hero"
                 />
 
-                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center justify-between rounded-2xl p-4 shadow-none">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-yellow-500">
-                            <img src="/categories/jobs.png" alt="" className="w-5 h-5 brightness-0 invert" />
+                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center justify-between rounded-2xl p-3 md:p-4 lg:p-4 shadow-none transition-all">
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 bg-yellow-500 transition-all">
+                            <img src="/categories/jobs.png" alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert transition-all" />
                         </div>
                         <div className="text-left">
-                            <p className="text-[12px] font-bold text-black uppercase tracking-tight font-funnel">Angajezi</p>
-                            <p className="text-[10px] text-gray-500 font-medium">Video Feed</p>
+                            <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel transition-all leading-tight">Angajezi</p>
+                            <p className="text-[9px] md:text-[10px] text-gray-500 font-medium transition-all">Video Feed</p>
                         </div>
                     </div>
-                    <p className="text-sm font-black text-black font-funnel tracking-tighter">LIVE</p>
+                    <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter transition-all">LIVE</p>
                 </div>
             </div>
 

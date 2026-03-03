@@ -216,20 +216,25 @@ export function Categories() {
                 <div className="flex-1 w-full flex items-center justify-center min-h-0 relative">
                     <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[450px] max-h-[90%] aspect-[3/4.2] rounded-[2.5rem] md:rounded-[3rem] bg-black/10 flex flex-col items-center justify-center text-center overflow-hidden border border-white/20 shadow-2xl transition-all duration-300">
                         {/* Internal Content Scaling Wrapper */}
-                        <div className="p-4 md:p-8 flex flex-col items-center justify-center h-full w-full transform scale-[0.9] sm:scale-100 origin-center">
-                            <p className="text-white/60 text-[10px] md:text-sm uppercase font-bold tracking-widest mb-1 md:mb-4 font-funnel">{activeProduct.label}</p>
-                            <h3 className="text-white text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 md:mb-10 font-funnel leading-none">
-                                {activeProduct.price}
-                            </h3>
+                        <div className="p-6 md:p-10 flex flex-col items-center justify-between h-full w-full transform scale-[0.9] sm:scale-100 origin-center">
+                            <div className="flex flex-col items-center">
+                                <p className="text-white/60 text-[10px] md:text-sm uppercase font-bold tracking-widest mb-1 md:mb-4 font-funnel">{activeProduct.label}</p>
+                                <h3 className="text-white text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 md:mb-10 font-funnel leading-none">
+                                    {activeProduct.price}
+                                </h3>
+                            </div>
+
+                            <div className="flex-1" /> {/* Spacer to push content */}
+
                             <button
                                 onClick={() => handleDeepLink(`product/${activeCategory.id}`)}
-                                className="bg-white text-black px-6 py-2 md:px-12 md:py-5 rounded-full text-xs md:text-lg font-black hover:scale-105 transition-transform font-onest mb-5 md:mb-10 shrink-0"
+                                className="bg-white text-black px-6 py-2 md:px-12 md:py-5 rounded-full text-xs md:text-lg font-black hover:scale-105 transition-transform font-onest mb-6 md:mb-12 shrink-0"
                             >
                                 Vezi detalii
                             </button>
 
-                            {/* Bottom Circular Action Buttons */}
-                            <div className="flex gap-3 md:gap-5 items-center shrink-0">
+                            {/* Bottom Circular Action Buttons - Anchored to bottom */}
+                            <div className="flex gap-3 md:gap-5 items-center shrink-0 mb-2">
                                 {[
                                     { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-11 md:h-11', link: 'favorites' },
                                     { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white', invert: true, size: 'w-10 h-10 md:w-15 md:h-15', imgSize: 'w-5 h-5 md:w-7 md:h-7', link: 'new-ad' },

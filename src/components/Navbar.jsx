@@ -44,58 +44,50 @@ export function Navbar() {
     return (
         <nav
             className={cn(
-                'fixed left-0 right-0 z-50 transition-all duration-500 ease-in-out flex justify-center pointer-events-auto',
-                scrolled ? 'top-4' : 'top-2',
-                visible ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
+                'fixed left-0 right-0 z-50 transition-all duration-300 ease-in-out flex justify-center pointer-events-auto',
+                scrolled
+                    ? 'top-0 bg-white/80 backdrop-blur-lg border-b border-black/5'
+                    : 'top-0 bg-transparent',
+                visible ? 'translate-y-0' : '-translate-y-full'
             )}
         >
-            <div className={cn(
-                "w-[90%] md:w-[700px] px-5 md:px-8 py-2.5 md:py-3.5 flex items-center justify-between rounded-full border transition-all duration-500",
-                scrolled
-                    ? "bg-white border-black/5 shadow-none"
-                    : "bg-white border-white/10 shadow-none"
-            )}>
-                {/* Logo Left */}
-                <a
-                    href="#"
-                    className="hover:scale-105 transition-transform shrink-0"
-                    onClick={(e) => handleScrollTo(e, 'top')}
-                >
-                    <img
-                        src="/pin24.svg"
-                        alt="Pin24 Logo"
-                        className="h-5 md:h-7 w-auto transition-all duration-300"
-                    />
-                </a>
-
-                {/* Desktop Links (Hidden on Mobile) */}
-                <div className="hidden md:flex items-center gap-12">
+            <div className="w-full max-w-7xl px-6 md:px-12 py-4 md:py-6 flex items-center justify-between transition-all duration-300">
+                {/* Left Side: Logo + Nav */}
+                <div className="flex items-center gap-8 md:gap-14">
                     <a
-                        href="#categories-section"
-                        onClick={(e) => handleScrollTo(e, 'categories-section')}
-                        className="text-sm font-medium text-black hover:-translate-y-[1px] transition-transform relative group font-onest"
+                        href="#"
+                        className="hover:scale-105 transition-all shrink-0"
+                        onClick={(e) => handleScrollTo(e, 'top')}
                     >
-                        Categorii
-                        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
+                        <img
+                            src="/pin24.svg"
+                            alt="Pin24 Logo"
+                            className="h-6 md:h-8 w-auto"
+                        />
                     </a>
 
+                    {/* Desktop Links */}
+                    <div className="hidden md:flex items-center gap-10">
+                        <a
+                            href="#categories-section"
+                            onClick={(e) => handleScrollTo(e, 'categories-section')}
+                            className="text-[15px] font-bold text-black/80 hover:text-black transition-colors font-onest"
+                        >
+                            Categorii
+                        </a>
+                    </div>
+                </div>
+
+                {/* Right Side: CTA */}
+                <div className="flex items-center gap-6">
                     <a
                         href="#install-section"
                         onClick={(e) => handleScrollTo(e, 'install-section')}
-                        className="text-sm font-semibold bg-black text-white px-8 py-2.5 rounded-full hover:scale-105 transition-transform duration-300 shadow-none font-onest"
+                        className="text-[14px] font-bold bg-black text-white px-7 py-2.5 rounded-full hover:scale-105 transition-all duration-300 font-onest"
                     >
                         Descarcă
                     </a>
                 </div>
-
-                {/* Mobile Button (Visible only on small screens) */}
-                <a
-                    href="#install-section"
-                    onClick={(e) => handleScrollTo(e, 'install-section')}
-                    className="md:hidden text-xs font-bold bg-black text-white px-5 py-2 rounded-full hover:scale-105 transition-transform duration-300 shadow-none font-onest"
-                >
-                    Descarcă
-                </a>
             </div>
         </nav>
     );
