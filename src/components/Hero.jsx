@@ -11,7 +11,7 @@ const Card = ({ innerRef, image, title, icon: Icon, color, zIndex = 30 }) => (
         style={{ zIndex }}
     >
         <img src={image} className="absolute inset-0 w-full h-full object-cover object-top" alt={title} />
-        <div className="absolute left-3 right-3 bottom-3 md:left-4 md:right-4 md:bottom-4 lg:left-5 lg:right-5 lg:bottom-5 bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-4 flex items-center justify-between shadow-none">
+        <div className="absolute left-3 right-3 bottom-3 md:left-4 md:right-4 md:bottom-4 lg:left-5 lg:right-5 lg:bottom-5 bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-4 flex items-center shadow-none">
             <div className="flex items-center gap-2 md:gap-3">
                 <div className={`${color} w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0`}>
                     {typeof Icon === 'string' ? (
@@ -20,12 +20,8 @@ const Card = ({ innerRef, image, title, icon: Icon, color, zIndex = 30 }) => (
                         <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                     )}
                 </div>
-                <div className="text-left">
-                    <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel leading-tight">{title}</p>
-                    <p className="text-[9px] md:text-[10px] text-gray-500 font-medium">Video Feed</p>
-                </div>
+                <p className="text-[12px] sm:text-[13px] md:text-[15px] font-black text-black uppercase tracking-tight font-funnel leading-tight">{title}</p>
             </div>
-            <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter">LIVE</p>
         </div>
     </div>
 );
@@ -375,17 +371,13 @@ export function Hero() {
                     alt="Pin24 Hero"
                 />
 
-                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center justify-between rounded-2xl p-3 md:p-4 lg:p-4 shadow-none">
+                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center rounded-2xl p-3 md:p-4 lg:p-4 shadow-none">
                     <div className="flex items-center gap-2 md:gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 bg-yellow-500">
                             <img src="/categories/jobs.png" alt="" className="w-4 h-4 md:w-5 md:h-5 brightness-0 invert" />
                         </div>
-                        <div className="text-left">
-                            <p className="text-[10px] sm:text-[11px] md:text-[13px] font-black text-black uppercase tracking-tight font-funnel leading-tight">Angajezi</p>
-                            <p className="text-[9px] md:text-[10px] text-gray-500 font-medium">Video Feed</p>
-                        </div>
+                        <p className="text-[12px] sm:text-[13px] md:text-[15px] font-black text-black uppercase tracking-tight font-funnel leading-tight">Angajezi</p>
                     </div>
-                    <p className="text-xs md:text-[15px] font-black text-black font-funnel tracking-tighter">LIVE</p>
                 </div>
             </div>
 
