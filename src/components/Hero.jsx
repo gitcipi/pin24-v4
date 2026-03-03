@@ -98,12 +98,7 @@ export function Hero() {
                 : Math.max(350, Math.min(rect.height * 0.55, rect.width * 0.35, 750));
             const cardW = cardH * 0.75;
 
-            // Calculate vertical centering instead of anchoring to the bottom
-            const minBottom = isMobile ? 5 : 20;
-            const textSpace = isMobile ? 120 : 180; // Approximate height the text takes above the card
-            let bottomInsetPx = (rect.height - cardH - textSpace) / 2;
-            if (bottomInsetPx < minBottom) bottomInsetPx = minBottom;
-
+            const bottomInsetPx = isMobile ? 5 : 20;
             const topInsetPx = rect.height - cardH - bottomInsetPx;
             const leftInsetPx = (rect.width - cardW) / 2;
             const rightInsetPx = leftInsetPx;
@@ -130,11 +125,10 @@ export function Hero() {
             });
             gsap.set(hero1Text.current, {
                 opacity: 1, y: 0, scale: 1,
-                // Fixed physical distance from the outline top
+                // Bottom edge of text sits exactly textGap px above card top
                 top: topInsetPx,
                 yPercent: -100,
-                marginTop: -gapBetweenTextAndCard,
-                bottom: 'auto'
+                marginTop: isMobile ? -20 : -40,
             });
             gsap.set(cardRefs[0].current, {
                 opacity: 0, scale: 0.5, xPercent: -200, yPercent: -50,
@@ -149,11 +143,11 @@ export function Hero() {
             gsap.set('.hero-final-text', { opacity: 0, y: 20 });
 
             // Position final text a FIXED distance above card top (never drifts)
+            const textGap = isMobile ? 30 : 60;
             gsap.set('.hero-final-text-wrapper', {
                 top: topInsetPx,
                 yPercent: -100,
-                y: -gapBetweenTextAndCard,
-                bottom: 'auto',
+                y: -textGap,
             });
 
             // ── Timeline: landscape → portrait ──
@@ -333,7 +327,7 @@ export function Hero() {
     return (
         <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest">
             {/* Initial Text Overlay */}
-            <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center justify-end z-[50] text-center px-4 sm:px-6 pointer-events-none origin-bottom">
+            <div ref={hero1Text} className="absolute inset-x-0 flex flex-col items-center justify-start z-[50] text-center px-4 sm:px-6 pointer-events-none">
                 <h1 className="text-white drop-shadow-lg text-[2.5rem] leading-tight sm:text-7xl lg:text-8xl font-extrabold sm:leading-[1.05] mb-4 sm:mb-6 font-onest">
                     Mai puține vorbe.<br />Mai mult video.
                 </h1>
@@ -367,7 +361,7 @@ export function Hero() {
             </div>
 
             {/* Final Background Text — positioned by GSAP relative to card */}
-            <div className="hero-final-text-wrapper absolute z-10 text-center w-full px-4 sm:px-6 pointer-events-none origin-bottom">
+            <div className="hero-final-text-wrapper absolute z-10 text-center w-full px-4 sm:px-6 pointer-events-none">
                 <h2 className="hero-final-text text-3xl sm:text-6xl font-black text-gray-900 mb-3 sm:mb-4 opacity-0 font-onest tracking-tight">
                     Pin24, reimaginat.
                 </h2>
