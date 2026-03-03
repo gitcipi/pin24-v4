@@ -1,28 +1,31 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useMotion } from '../hooks/useMotion';
+import { ShoppingBag, Tag, Home, Briefcase } from 'lucide-react';
+import { cn } from '../utils';
 
-const Card = ({ innerRef, image, title, amount, color, subtext, zIndex = 30 }) => (
+const Card = ({ innerRef, image, title, icon: Icon, color, zIndex = 30 }) => (
     <div
         ref={innerRef}
-        className="absolute overflow-hidden shadow-2xl rounded-2xl bg-gray-100 flex flex-col pointer-events-auto"
+        className="absolute overflow-hidden rounded-[32px] bg-transparent flex flex-col pointer-events-auto border-none shadow-none"
         style={{ zIndex }}
     >
-        <div className="flex-1 relative overflow-hidden">
-            <img src={image} className="w-full h-full object-cover" alt={title} />
-            <div className="absolute inset-0 bg-black/5"></div>
-        </div>
-        <div className="bg-white p-3 flex items-center justify-between border-t border-gray-100 h-[60px] overflow-hidden">
-            <div className="flex items-center gap-2 overflow-hidden">
-                <div className={`${color} w-8 h-8 rounded-full flex items-center justify-center shrink-0`}>
-                    <img src="/pin24.svg" className="w-4 h-4 brightness-0 invert" alt="" />
+        <img src={image} className="absolute inset-0 w-full h-full object-cover object-top" alt={title} />
+        <div className="absolute left-4 right-4 bottom-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between shadow-none">
+            <div className="flex items-center gap-3">
+                <div className={`${color} w-9 h-9 rounded-full flex items-center justify-center shrink-0`}>
+                    {typeof Icon === 'string' ? (
+                        <img src={Icon} alt="" className="w-5 h-5 brightness-0 invert" />
+                    ) : (
+                        <Icon className="w-5 h-5 text-white" />
+                    )}
                 </div>
-                <div className="overflow-hidden text-left">
-                    <p className="text-[11px] font-bold text-gray-900 truncate uppercase tracking-tight">{title}</p>
-                    <p className="text-[9px] text-gray-400 font-medium truncate">{subtext}</p>
+                <div className="text-left">
+                    <p className="text-[12px] font-bold text-black uppercase tracking-tight font-funnel">{title}</p>
+                    <p className="text-[10px] text-gray-500 font-medium">Video Feed</p>
                 </div>
             </div>
-            <p className="text-xs font-black text-gray-900 ml-2">{amount}</p>
+            <p className="text-sm font-black text-black font-funnel tracking-tighter">LIVE</p>
         </div>
     </div>
 );
@@ -36,17 +39,24 @@ export function Hero() {
     const hero1Text = useRef(null);
     const cardFooterRef = useRef(null);
 
-    const cardRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+    const cardRefs = [useRef(null), useRef(null), useRef(null)];
 
     const state = useRef('landscape');
     const isAnimating = useRef(false);
-    const hasCompleted = useRef(false); // Once true, NEVER lock scroll again
+    const hasCompleted = useRef(false);
+
+    const heroImage = "/new hero/Chat securizat.jpg"; // Angajezi în mijloc
+    const sideCardsData = [
+        { image: "/new hero/Gasesti Rapid ce Cauti.jpg", title: "Cumperi", icon: "/UI/empty@4x.png", color: "bg-blue-600" }, // stânga
+        { image: "/new hero/Faci bani mai ușor.jpg", title: "Vinzi", icon: "/UI/empty@4x.png", color: "bg-emerald-500" }     // dreapta
+    ];
 
     useLayoutEffect(() => {
         if (!canAnimate) return;
 
         let tl;
         let resizeTimer;
+        let rotationInterval;
 
         const lock = () => {
             document.body.style.overflow = 'hidden';
@@ -70,13 +80,11 @@ export function Hero() {
             unlock();
         };
 
-        // Initial lock - only if we haven't completed before
         if (!hasCompleted.current) {
             lock();
             window.scrollTo(0, 0);
         }
 
-        // Listen for external unlock signals (from Navbar, etc)
         window.addEventListener('pin24-unlock', unlockInternal);
 
         const init = () => {
@@ -85,64 +93,50 @@ export function Hero() {
             const isMobile = window.innerWidth < 1024;
             const rect = comp.current.getBoundingClientRect();
 
-            const cardW = isMobile ? Math.min(rect.width - 48, 340) : 230;
-            const cardH = isMobile ? Math.min(rect.height * 0.55, 520) : 460;
-            const footerH = 64;
+            const cardH = isMobile
+                ? Math.min(rect.height * 0.55, 480)
+                : Math.min(rect.height * 0.55, 550);
+            const cardW = cardH * 0.75;
 
-            const topInsetPx = (rect.height - cardH) / 2;
+            const bottomInsetPx = isMobile ? 5 : 20;
+            const topInsetPx = rect.height - cardH - bottomInsetPx;
             const leftInsetPx = (rect.width - cardW) / 2;
-            const bottomInsetPx = topInsetPx;
             const rightInsetPx = leftInsetPx;
+            const ft = `${rect.height - (cardH / 2) - bottomInsetPx}px`;
 
-            // ─── INITIAL STATE BASED ON CURRENT MODE ───
-            const isLandscape = state.current === 'landscape';
-
+            // ── ALWAYS set to LANDSCAPE (start) state ──
             gsap.set(heroImageRef.current, {
-                clipPath: isLandscape
-                    ? 'inset(0px 0px 0px 0px round 0px)'
-                    : `inset(${topInsetPx}px ${leftInsetPx}px ${bottomInsetPx}px ${rightInsetPx}px round 24px)`,
-                filter: isLandscape
-                    ? 'drop-shadow(0 0 0px rgba(0,0,0,0))'
-                    : 'drop-shadow(0 20px 50px rgba(0,0,0,0.25))',
+                clipPath: 'inset(0px 0px 0px 0px round 0px)',
             });
-
-            gsap.set(heroImgEl.current, { scale: isLandscape ? 1 : 1.15 });
-
+            gsap.set(heroImgEl.current, { scale: 1 });
             gsap.set(cardFooterRef.current, {
-                opacity: isLandscape ? 0 : 1,
-                y: isLandscape ? 15 : 0,
-                width: cardW,
-                height: footerH,
-                bottom: `${bottomInsetPx}px`,
-                left: '50%',
-                xPercent: -50,
+                opacity: 0, y: 15,
+                width: cardW - 32,
+                bottom: `${bottomInsetPx + 16}px`,
+                left: '50%', xPercent: -50,
             });
-
-            gsap.set(hero1Text.current, {
-                opacity: isLandscape ? 1 : 0,
-                y: isLandscape ? 0 : -30,
-                scale: isLandscape ? 1 : 0.9
+            // Outline is static at card size (no animation)
+            gsap.set('.hero-mask-outline', {
+                opacity: 1,
+                top: topInsetPx, left: leftInsetPx,
+                width: cardW, height: cardH,
+                borderRadius: '32px', borderWidth: '2.5px',
+                borderColor: 'rgba(255, 255, 255, 0.4)'
             });
-
-            const sideCards = cardRefs.map(r => r.current);
-            if (isLandscape) {
-                gsap.set(sideCards, {
-                    opacity: 0, scale: 0.5, xPercent: -50, yPercent: -50, left: '50%', top: '50%',
-                });
-            } else if (!isMobile) {
-                const ft = '50%';
-                gsap.set(cardRefs[0].current, { opacity: 1, scale: 0.95, xPercent: -180, top: ft, width: '210px', height: '370px' });
-                gsap.set(cardRefs[2].current, { opacity: 1, scale: 0.95, xPercent: 80, top: ft, width: '210px', height: '370px' });
-                gsap.set(cardRefs[1].current, { opacity: 0.6, scale: 0.85, xPercent: -320, top: ft, width: '190px', height: '340px' });
-                gsap.set(cardRefs[3].current, { opacity: 0.6, scale: 0.85, xPercent: 220, top: ft, width: '190px', height: '340px' });
-            }
-
-            gsap.set('.hero-final-text', {
-                opacity: isLandscape ? 0 : 1,
-                y: isLandscape ? 0 : 0
+            gsap.set(hero1Text.current, { opacity: 1, y: 0, scale: 1 });
+            gsap.set(cardRefs[0].current, {
+                opacity: 0, scale: 0.5, xPercent: -200, yPercent: -50,
+                left: '50%', top: '50%', pointerEvents: 'none',
+                width: cardW, height: cardH,
             });
+            gsap.set(cardRefs[1].current, {
+                opacity: 0, scale: 0.5, xPercent: 100, yPercent: -50,
+                left: '50%', top: '50%', pointerEvents: 'none',
+                width: cardW, height: cardH,
+            });
+            gsap.set('.hero-final-text', { opacity: 0, y: 20 });
 
-            // ─── RE-BUILD TIMELINE ───
+            // ── Timeline: landscape → portrait ──
             tl = gsap.timeline({ paused: true });
 
             tl.to(hero1Text.current, {
@@ -151,13 +145,13 @@ export function Hero() {
             }, 0);
 
             tl.to(heroImageRef.current, {
-                clipPath: `inset(${topInsetPx}px ${leftInsetPx}px ${bottomInsetPx}px ${rightInsetPx}px round 24px)`,
-                filter: 'drop-shadow(0 20px 50px rgba(0,0,0,0.25))',
+                clipPath: `inset(${topInsetPx}px ${leftInsetPx}px ${bottomInsetPx}px ${rightInsetPx}px round 32px)`,
                 duration: 0.8, ease: 'power3.inOut',
             }, 0.05);
 
+            // Image zooms in 20% during scroll for a dynamic crop effect
             tl.to(heroImgEl.current, {
-                scale: 1.15, duration: 0.8, ease: 'power3.inOut',
+                scale: 1.2, duration: 0.8, ease: 'power3.inOut',
             }, 0.05);
 
             tl.to(cardFooterRef.current, {
@@ -165,28 +159,28 @@ export function Hero() {
             }, 0.4);
 
             if (!isMobile) {
-                const ft = '50%';
-                tl.to(cardRefs[0].current, { opacity: 1, scale: 0.95, xPercent: -180, top: ft, width: '210px', height: '370px', duration: 0.6, ease: 'power2.out' }, 0.3);
-                tl.to(cardRefs[2].current, { opacity: 1, scale: 0.95, xPercent: 80, top: ft, width: '210px', height: '370px', duration: 0.6, ease: 'power2.out' }, 0.3);
-                tl.to(cardRefs[1].current, { opacity: 0.6, scale: 0.85, xPercent: -320, top: ft, width: '190px', height: '340px', duration: 0.6, ease: 'power2.out' }, 0.4);
-                tl.to(cardRefs[3].current, { opacity: 0.6, scale: 0.85, xPercent: 220, top: ft, width: '190px', height: '340px', duration: 0.6, ease: 'power2.out' }, 0.4);
+                tl.to(cardRefs[0].current, {
+                    opacity: 1, scale: 0.88, xPercent: -152,
+                    top: ft, width: cardW, height: cardH,
+                    pointerEvents: 'auto', duration: 0.6, ease: 'power2.out'
+                }, 0.3);
+                tl.to(cardRefs[1].current, {
+                    opacity: 1, scale: 0.88, xPercent: 52,
+                    top: ft, width: cardW, height: cardH,
+                    pointerEvents: 'auto', duration: 0.6, ease: 'power2.out'
+                }, 0.3);
             }
 
-            tl.fromTo('.hero-final-text',
-                { opacity: isLandscape ? 0 : 1, y: isLandscape ? 20 : 0 },
-                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out' },
-                0.6,
-            );
+            tl.to('.hero-final-text', {
+                opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out'
+            }, 0.6);
 
-            // If we are already in portrait mode, sync the timeline to the end
-            if (!isLandscape) {
+            // If already in portrait, snap to the end immediately
+            if (state.current === 'portrait') {
                 tl.progress(1);
             }
         };
 
-        setTimeout(init, 50);
-
-        // ─── PLAY FORWARD: landscape → portrait ───
         const playForward = () => {
             if (isAnimating.current || state.current !== 'landscape' || !tl) return;
             isAnimating.current = true;
@@ -194,12 +188,11 @@ export function Hero() {
 
             tl.timeScale(1).play().then(() => {
                 isAnimating.current = false;
-                hasCompleted.current = true;  // Animation done — NEVER lock again
-                unlock();                      // Free the user to scroll
+                hasCompleted.current = true;
+                unlock();
             });
         };
 
-        // ─── PLAY REVERSE: portrait → landscape (only from scrollY=0) ───
         const playReverse = () => {
             if (isAnimating.current || state.current !== 'portrait' || !tl) return;
             if (window.scrollY > 5) return;
@@ -207,25 +200,20 @@ export function Hero() {
             state.current = 'landscape';
             hasCompleted.current = false;
 
-            // Temporarily lock just during the reverse animation
             document.body.style.overflow = 'hidden';
             document.body.style.touchAction = 'none';
             document.documentElement.style.overflow = 'hidden';
 
             tl.timeScale(1.3).reverse().then(() => {
                 isAnimating.current = false;
-                // Re-lock everything once back in landscape state to prevent refresh pull
                 lock();
             });
         };
 
-        // ─── WHEEL (Desktop) ───
         const handleWheel = (e) => {
             if (isAnimating.current) { e.preventDefault(); return; }
-
             const r = comp.current?.getBoundingClientRect();
             if (!r) return;
-
             if (e.deltaY > 0 && state.current === 'landscape' && r.top > -50 && r.top < 50) {
                 e.preventDefault();
                 playForward();
@@ -235,41 +223,22 @@ export function Hero() {
             }
         };
 
-        // ─── TOUCH (Mobile) ───
         let touchStartY = 0;
         let touchHandled = false;
-
-        const handleTouchStart = (e) => {
-            touchStartY = e.touches[0].clientY;
-            touchHandled = false;
-        };
-
+        const handleTouchStart = (e) => { touchStartY = e.touches[0].clientY; touchHandled = false; };
         const handleTouchMove = (e) => {
             if (touchHandled || isAnimating.current) return;
-
             const dy = touchStartY - e.touches[0].clientY;
-
-            // If the animation already completed and we're in portrait, let the user scroll freely
             if (hasCompleted.current && state.current === 'portrait') {
-                // If we reach the absolute top of the page, enable overscroll-behavior-y: none 
-                // to prevent pull-to-refresh and prepare for a clean reverse transition
-                if (window.scrollY < 10) {
-                    document.body.style.overscrollBehaviorY = 'none';
-                } else {
-                    document.body.style.overscrollBehaviorY = '';
-                }
-
-                // Only intercept if user is at top and swiping DOWN (to reverse)
-                // Note: finger moves from top to bottom, so dy is negative
+                if (window.scrollY < 10) document.body.style.overscrollBehaviorY = 'none';
+                else document.body.style.overscrollBehaviorY = '';
                 if (dy < -10 && window.scrollY < 5) {
                     touchHandled = true;
                     e.preventDefault();
                     playReverse();
                 }
-                return; // Let normal scrolling happen
+                return;
             }
-
-            // In landscape state: intercept swipe down to play animation
             if (dy > 15 && state.current === 'landscape') {
                 touchHandled = true;
                 e.preventDefault();
@@ -277,33 +246,32 @@ export function Hero() {
             }
         };
 
-        // ─── POINTER (PC emulator click-drag) ───
         let pointerStartY = 0;
         const handlePointerDown = (e) => { pointerStartY = e.clientY; };
         const handlePointerMove = (e) => {
             if (e.pointerType === 'touch' || e.buttons !== 1 || isAnimating.current) return;
             const dy = pointerStartY - e.clientY;
-            if (dy > 15 && state.current === 'landscape') {
-                playForward();
-            }
+            if (dy > 15 && state.current === 'landscape') playForward();
         };
 
+        let lastHeight = window.innerHeight;
         let lastWidth = window.innerWidth;
         const onResize = () => {
             const currentWidth = window.innerWidth;
-            // Ignore small height changes (address bar) but react to width changes
-            if (Math.abs(currentWidth - lastWidth) < 20) return;
+            const currentHeight = window.innerHeight;
+            // Only trigger if changes are significant (ignore small mobile address bar jumps)
+            if (Math.abs(currentWidth - lastWidth) < 10 && Math.abs(currentHeight - lastHeight) < 50) return;
 
             lastWidth = currentWidth;
+            lastHeight = currentHeight;
+
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                if (!hasCompleted.current) {
-                    state.current = 'landscape';
-                    lock();
-                    window.scrollTo(0, 0);
-                }
+                // Keep progress state relative to current state
+                const wasPortrait = state.current === 'portrait';
                 init();
-            }, 200);
+                if (wasPortrait && tl) tl.progress(1);
+            }, 250);
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
@@ -312,6 +280,8 @@ export function Hero() {
         window.addEventListener('pointerdown', handlePointerDown);
         window.addEventListener('pointermove', handlePointerMove, { passive: false });
         window.addEventListener('resize', onResize);
+
+        setTimeout(init, 50);
 
         return () => {
             clearTimeout(resizeTimer);
@@ -326,48 +296,73 @@ export function Hero() {
         };
     }, [canAnimate]);
 
+
     return (
-        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative">
-            <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-center z-[50] text-center px-6 pointer-events-none">
-                <h1 className="text-white text-4xl sm:text-7xl lg:text-9xl font-black leading-[1.1] mb-6 drop-shadow-2xl">
-                    Lumea ta, Pin24.
+        <section ref={comp} className="w-full h-screen bg-white overflow-hidden relative font-onest">
+            {/* Initial Text Overlay */}
+            <div ref={hero1Text} className="absolute inset-0 flex flex-col items-center justify-start pt-[12vh] z-[50] text-center px-6 pointer-events-none">
+                <h1 className="text-black text-5xl sm:text-7xl lg:text-8xl font-black leading-[1.05] mb-6 font-onest">
+                    Mai puține vorbe.<br />Mai mult video.
                 </h1>
-                <p className="text-white/90 text-base sm:text-2xl font-bold max-w-2xl drop-shadow-lg">
-                    Experiență completă, acum la scară largă.
+                <p className="text-gray-900 text-lg sm:text-2xl font-semibold max-w-2xl opacity-90">
+                    Un marketplace cu vibe de social: vezi video full-screen, dai share și urmărești favoriții.
                 </p>
             </div>
 
-            <div ref={heroImageRef} className="absolute inset-0 z-20">
-                <img ref={heroImgEl} src="/new hero page.png" className="w-full h-full object-cover origin-center" alt="Pin24 Hero" />
-                <div ref={cardFooterRef} className="absolute bg-white flex items-center justify-between rounded-b-[24px] px-4 shadow-inner border-t border-gray-100">
+            <div ref={heroImageRef} className="absolute inset-0 z-20 pointer-events-none">
+                {/* Thin Outline Rama - Always present underneath the text */}
+                <div className="hero-mask-outline absolute border border-white/40 pointer-events-none z-30"></div>
+                <img
+                    ref={heroImgEl}
+                    src={heroImage}
+                    className="w-full h-full object-cover object-top"
+                    alt="Pin24 Hero"
+                />
+
+                <div ref={cardFooterRef} className="absolute bg-white/95 backdrop-blur-md flex items-center justify-between rounded-2xl p-4 shadow-none">
                     <div className="flex items-center gap-3">
-                        <div className="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
-                            <img src="/pin24.svg" className="w-4 h-4 brightness-0 invert" alt="" />
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-yellow-500">
+                            <img src="/categories/jobs.png" alt="" className="w-5 h-5 brightness-0 invert" />
                         </div>
                         <div className="text-left">
-                            <p className="text-[11px] font-bold text-gray-900 uppercase tracking-tight">Pin24 Home</p>
-                            <p className="text-[9px] text-gray-400 font-medium">Locații noi</p>
+                            <p className="text-[12px] font-bold text-black uppercase tracking-tight font-funnel">Angajezi</p>
+                            <p className="text-[10px] text-gray-500 font-medium">Video Feed</p>
                         </div>
                     </div>
-                    <p className="text-xs font-black text-gray-900">12.4k</p>
+                    <p className="text-sm font-black text-black font-funnel tracking-tighter">LIVE</p>
                 </div>
             </div>
 
-            <div className="absolute z-30 top-[8%] lg:top-[12%] text-center w-full px-6 pointer-events-none">
-                <h2 className="hero-final-text text-3xl sm:text-5xl font-black text-gray-900 mb-3 opacity-0">
+            {/* Final Background Text */}
+            <div className="absolute z-10 top-[12%] lg:top-[16%] text-center w-full px-6 pointer-events-none">
+                <h2 className="hero-final-text text-4xl sm:text-6xl font-black text-gray-900 mb-4 opacity-0 font-onest tracking-tight">
                     Pin24, reimaginat.
                 </h2>
-                <p className="hero-final-text text-gray-500 font-medium text-base sm:text-lg opacity-0 max-w-xl mx-auto">
-                    Gestionează-ți favoritele și vizualizează hărțile în timp real.
+                <p className="hero-final-text text-gray-500 font-medium text-lg sm:text-xl opacity-0 max-w-xl mx-auto font-onest leading-snug">
+                    Descoperă anunțuri video full-screen și urmărește ceea ce te interesează cu adevărat.
                 </p>
             </div>
 
+            {/* Side Cards (Matching Revolut Style) */}
             <div className="hidden lg:block absolute inset-0 z-15 pointer-events-none">
-                <Card innerRef={cardRefs[0]} image="/CATEGORIES.jpeg" title="Căutare" subtext="Filtre active" amount="Harta" color="bg-indigo-600" />
-                <Card innerRef={cardRefs[1]} image="/favorite page.jpeg" title="Favorite" subtext="Actualizat" amount="4" color="bg-rose-500" />
-                <Card innerRef={cardRefs[2]} image="/listing example details.jpeg" title="Detalii" subtext="Preț actual" amount="€2.5k" color="bg-emerald-500" />
-                <Card innerRef={cardRefs[3]} image="/listing example.jpeg" title="Recent" subtext="Postat azi" amount="Nou" color="bg-orange-500" />
+                <Card
+                    innerRef={cardRefs[0]}
+                    image={sideCardsData[0].image}
+                    title={sideCardsData[0].title}
+                    icon={sideCardsData[0].icon}
+                    color={sideCardsData[0].color}
+                />
+                <Card
+                    innerRef={cardRefs[1]}
+                    image={sideCardsData[1].image}
+                    title={sideCardsData[1].title}
+                    icon={sideCardsData[1].icon}
+                    color={sideCardsData[1].color}
+                />
             </div>
+
+
         </section>
     );
 }
+

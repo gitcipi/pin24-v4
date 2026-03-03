@@ -2,12 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Funnel Sans';
+  src: url('/Funnel_Sans/FunnelSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Onest';
+  src: url('/Onest/Onest-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #111111;
+    --foreground: #000000;
     --accent: #ff3b30;
-    --surface: #f5f5f7;
+    --surface: #fafafa;
+    --font-onest: 'Onest', system-ui, sans-serif;
+    --font-funnel: 'Funnel Sans', system-ui, sans-serif;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -20,11 +36,13 @@
   }
 
   body {
-    @apply bg-[var(--background)] text-[var(--foreground)] font-sans antialiased overflow-x-hidden selection:bg-accent selection:text-white;
+    @apply bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden selection:bg-accent selection:text-white;
+    font-family: var(--font-onest);
   }
 
   html {
     scroll-behavior: auto;
+    scrollbar-gutter: stable;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -38,16 +56,24 @@
 }
 
 @layer utilities {
+  .font-funnel {
+    font-family: var(--font-funnel);
+  }
+
+  .font-onest {
+    font-family: var(--font-onest);
+  }
+
   .text-balance {
     text-wrap: balance;
   }
 
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.1)];
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
 
   .dark .glass-panel {
-    @apply bg-black/40 backdrop-blur-2xl border-white/10 shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.5)];
+    @apply bg-black/40 backdrop-blur-2xl border-white/10;
   }
 
   .no-scrollbar::-webkit-scrollbar {

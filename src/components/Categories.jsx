@@ -1,37 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-    Heart,
-    MapPin,
-    Building2,
-    Briefcase,
-    Shirt,
-    Car,
-    Smartphone,
-    Share2,
-    Plus,
-    Minus,
-    MoreHorizontal
-} from 'lucide-react';
 import { cn } from '../utils';
 import gsap from 'gsap';
 
 const CATEGORIES = [
-    {
-        id: 'imobiliare',
-        name: 'Imobiliare',
-        icon: '/categories/imobiliare.svg',
-        title: 'Spațiul tău, definit.',
-        description: 'Descoperă proprietăți care îți reflectă stilul de viață. De la apartamente urbane la reședințe exclusiviste.',
-        bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2000',
-        products: [
-            {
-                title: 'Vilă Modernă Lux',
-                price: '2.400.000 €',
-                label: 'Imobiliare',
-                location: 'Sibiu',
-            }
-        ]
-    },
     {
         id: 'auto',
         name: 'Auto & Moto',
@@ -44,6 +15,38 @@ const CATEGORIES = [
                 title: 'BMW 740 2023',
                 price: '77.300 €',
                 label: 'Auto & Moto',
+                location: 'Sibiu',
+            }
+        ]
+    },
+    {
+        id: 'electronics',
+        name: 'Electronice',
+        icon: '/categories/electronics.svg',
+        title: 'Tehnologia de mâine.',
+        description: 'Echipamente care îți simplifică viața și te mențin conectat. Performanță de top pentru pasiunile tale.',
+        bgImage: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=2000',
+        products: [
+            {
+                title: 'iPhone 15 Pro Max',
+                price: '5.400 lei',
+                label: 'Electronice',
+                location: 'Cluj',
+            }
+        ]
+    },
+    {
+        id: 'imobiliare',
+        name: 'Imobiliare',
+        icon: '/categories/imobiliare.svg',
+        title: 'Spațiul tău, definit.',
+        description: 'Descoperă proprietăți care îți reflectă stilul de viață. De la apartamente urbane la reședințe exclusiviste.',
+        bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2000',
+        products: [
+            {
+                title: 'Vilă Modernă Lux',
+                price: '2.400.000 €',
+                label: 'Imobiliare',
                 location: 'Sibiu',
             }
         ]
@@ -79,22 +82,6 @@ const CATEGORIES = [
                 location: 'București',
             }
         ]
-    },
-    {
-        id: 'electronics',
-        name: 'Electronice',
-        icon: '/categories/electronics.svg',
-        title: 'Tehnologia de mâine.',
-        description: 'Echipamente care îți simplifică viața și te mențin conectat. Performanță de top pentru pasiunile tale.',
-        bgImage: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=2000',
-        products: [
-            {
-                title: 'iPhone 15 Pro Max',
-                price: '5.400 lei',
-                label: 'Electro',
-                location: 'Cluj',
-            }
-        ]
     }
 ];
 
@@ -102,17 +89,41 @@ const AUTOPLAY_DURATION = 6000;
 
 export function Categories() {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [isVisible, setIsVisible] = useState(false);
     const progressBarRef = useRef(null);
     const progressTween = useRef(null);
+    const sectionRef = useRef(null);
 
     useEffect(() => {
-        startProgress();
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                }
+            },
+            { threshold: 0.3 }
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => {
+            if (sectionRef.current) observer.unobserve(sectionRef.current);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (isVisible) {
+            startProgress();
+        }
         return () => {
             if (progressTween.current) progressTween.current.kill();
         };
-    }, [activeIndex]);
+    }, [activeIndex, isVisible]);
 
     const startProgress = () => {
+        if (!progressBarRef.current) return;
         if (progressTween.current) progressTween.current.kill();
 
         progressTween.current = gsap.fromTo(progressBarRef.current,
@@ -148,22 +159,15 @@ export function Categories() {
         const androidStore = "https://play.google.com/store/apps/details?id=ro.kobidesign.pin24";
 
         if (isAndroid) {
-            // Simplify to base scheme to ensure app opens successfully
             window.location.href = `intent://#Intent;scheme=pin24;package=ro.kobidesign.pin24;S.browser_fallback_url=${encodeURIComponent(androidStore)};end`;
         } else if (isIOS) {
-            // iOS Custom Scheme logic
             const start = Date.now();
-            window.location.href = `pin24://`; // Opening at root to prevent path errors
-
-            // If the app is installed, the browser will background/hide. 
-            // We only redirect if the user is STILL on the page after a short lag.
+            window.location.href = `pin24://`;
             const timer = setTimeout(() => {
                 if (Date.now() - start < 2000 && document.visibilityState === 'visible') {
                     window.location.href = iosStore;
                 }
             }, 1200);
-
-            // Kill the timer immediately if the page starts to hide (app is opening)
             window.addEventListener('pagehide', () => clearTimeout(timer), { once: true });
         }
     };
@@ -172,8 +176,12 @@ export function Categories() {
     const activeProduct = activeCategory.products[0];
 
     return (
-        <section id="categories-section" className="relative h-screen w-full overflow-hidden flex flex-col items-center bg-black">
-            {/* Background Images - 100% Opacity, NO BLUR */}
+        <section
+            id="categories-section"
+            ref={sectionRef}
+            className="relative h-[100dvh] w-full overflow-hidden flex flex-col items-center bg-black font-onest"
+        >
+            {/* Background Images */}
             {CATEGORIES.map((cat, i) => (
                 <div
                     key={cat.id}
@@ -185,108 +193,112 @@ export function Categories() {
                     <img
                         src={cat.bgImage}
                         alt={cat.name}
-                        className="w-full h-full object-cover brightness-[0.7]"
+                        className="w-full h-full object-cover"
                     />
-                    {/* Subtle gradient to ensure text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
+                    <div className="absolute inset-0 bg-black/20" />
                 </div>
             ))}
 
-            {/* Left-Aligned Header Area (matching Revolut) */}
-            <div className="absolute top-[6%] md:top-[12%] left-0 md:left-[10%] z-20 w-full md:max-w-xl text-center md:text-left px-6">
-                <h2 className="text-white text-3xl md:text-7xl font-bold mb-3 md:mb-6 tracking-tight animate-in fade-in slide-in-from-left-8 duration-700">
-                    {activeCategory.title}
-                </h2>
-                <p className="text-sm md:text-xl text-white/90 font-medium mb-6 md:mb-10 leading-relaxed max-w-md mx-auto md:mx-0 animate-in fade-in slide-in-from-left-8 duration-700 delay-100">
-                    {activeCategory.description}
-                </p>
-                <button
-                    onClick={() => handleDeepLink(`category/${activeCategory.id}`)}
-                    className="bg-white/95 backdrop-blur-md text-black px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-black text-sm md:text-base hover:scale-105 transition-transform shadow-2xl animate-in fade-in slide-in-from-left-8 duration-700 delay-200"
-                >
-                    Explorează {activeCategory.name}
-                </button>
-            </div>
+            {/* Flow Layout Container — gap ensures no overlapping at any size */}
+            <div className="relative z-20 w-full h-full flex flex-col items-center justify-between gap-4 pt-[clamp(1.5rem,8%,5rem)] pb-[clamp(0.5rem,4%,2rem)] px-4 overflow-hidden">
 
-            {/* Thin Bordered Central Frame (matching Revolut) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] md:-translate-y-[50%] z-20 w-[280px] md:w-[360px] aspect-[1/1.3] border-2 border-white/40 rounded-[2.5rem] bg-black/5 pt-6 px-6 pb-3 md:pt-8 md:px-8 md:pb-4 flex flex-col items-center justify-between text-center overflow-hidden animate-in zoom-in-95 fade-in duration-1000">
-                {/* Thin Highlight Shine */}
-                <div className="absolute inset-0 pointer-events-none border border-white/20 rounded-[2.5rem]" />
-
-                <div className="mt-4 md:mt-8">
-                    <p className="text-white/60 text-[9px] md:text-[10px] uppercase font-bold tracking-widest mb-1">{activeProduct.label}</p>
-                    <h3 className="text-white text-3xl md:text-5xl font-black tracking-tighter mb-4">
-                        {activeProduct.price}
-                    </h3>
-                    <button
-                        onClick={() => handleDeepLink(`product/${activeCategory.id}`)}
-                        className="bg-white text-black px-5 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-black hover:scale-105 transition-transform shadow-xl"
-                    >
-                        Vezi detalii
-                    </button>
+                {/* Header Area — shrink-0 keeps its height, text scales down */}
+                <div className="w-full max-w-4xl text-center shrink-0">
+                    <h2 className="text-white text-[clamp(1.5rem,5vw,4.5rem)] font-black mb-1 md:mb-4 tracking-tight animate-in fade-in zoom-in-95 duration-700 font-onest leading-tight">
+                        {activeCategory.title}
+                    </h2>
+                    <p className="hidden md:block text-sm md:text-xl text-white/80 font-medium leading-relaxed max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 font-onest">
+                        {activeCategory.description}
+                    </p>
                 </div>
 
-                {/* Bottom Circular Action Buttons */}
-                <div className="flex gap-3 mb-0">
-                    {[
-                        { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-9 h-9 md:w-10 md:h-10', offset: '-translate-x-[15px] translate-y-[5px]', link: 'favorites' },
-                        { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white/80', invert: true, size: 'w-12 h-12 md:w-13 md:h-13', imgSize: 'w-6 h-6', link: 'new-ad' },
-                        { path: '/UI/conversation.svg', bg: 'bg-white/10', size: 'w-9 h-9 md:w-10 md:h-10', offset: 'translate-x-[15px] translate-y-[5px]', link: 'chat' }
-                    ].map((icon, i) => (
-                        <div
-                            key={i}
-                            onClick={() => handleDeepLink(icon.link)}
-                            className={cn(
-                                "rounded-full backdrop-blur-xl border border-white/20 flex items-center justify-center cursor-pointer hover:scale-110 transition-all",
-                                icon.bg,
-                                icon.size,
-                                icon.offset
-                            )}
-                        >
-                            <img
-                                src={icon.path}
-                                className={cn(
-                                    icon.imgSize || "w-5 h-5",
-                                    icon.invert ? "brightness-0" : "brightness-0 invert"
-                                )}
-                                alt=""
-                            />
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Category Pill Switcher (Botom Overlay) */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center w-full overflow-visible">
-                <div className="flex flex-nowrap gap-4 md:gap-10 justify-center overflow-x-auto no-scrollbar py-10 px-6 md:px-32 max-w-full overflow-y-visible">
-                    {CATEGORIES.map((cat, index) => {
-                        const isActive = index === activeIndex;
-                        return (
+                {/* Central Card — flex-1 + min-h-0 lets it shrink; aspect-[3/4] on inner keeps ratio */}
+                <div className="flex-1 min-h-0 flex items-center justify-center w-full">
+                    <div className="relative h-full max-h-[600px] aspect-[3/4] max-w-[90vw] rounded-[2rem] md:rounded-[3rem] bg-black/10 backdrop-blur-xl flex flex-col items-center justify-center text-center overflow-hidden border border-white/20 shadow-2xl">
+                        <div className="p-4 md:p-10 flex flex-col items-center justify-center h-full w-full">
+                            <p className="text-white/60 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-1 md:mb-4 font-funnel">{activeProduct.label}</p>
+                            <h3 className="text-white text-[clamp(1.5rem,6vw,4.5rem)] font-black tracking-tighter mb-3 md:mb-10 font-funnel leading-none">
+                                {activeProduct.price}
+                            </h3>
                             <button
-                                key={cat.id}
-                                onClick={() => handleCategoryClick(index)}
-                                className={cn(
-                                    "p-3 md:px-8 md:py-3 rounded-full text-xs md:text-sm font-black transition-all relative shrink-0 border-2 flex items-center md:gap-3",
-                                    isActive
-                                        ? "bg-white/90 text-black border-white shadow-xl scale-110 z-10"
-                                        : "bg-black/40 text-white/70 border-white/10 hover:bg-black/60 hover:text-white"
-                                )}
+                                onClick={() => handleDeepLink(`product/${activeCategory.id}`)}
+                                className="bg-white text-black px-6 py-2 md:px-12 md:py-5 rounded-full text-xs md:text-lg font-black hover:scale-105 transition-transform font-onest"
                             >
-                                <img
-                                    src={cat.icon}
-                                    className={cn(
-                                        "w-5 h-5 transition-all",
-                                        isActive ? "brightness-0" : "brightness-0 invert opacity-70"
-                                    )}
-                                    alt=""
-                                />
-                                <span className="hidden md:block whitespace-nowrap">{cat.name}</span>
+                                Vezi detalii
                             </button>
-                        );
-                    })}
+                        </div>
+
+                        {/* Bottom Circular Action Buttons */}
+                        <div className="absolute bottom-3 md:bottom-6 flex gap-3 md:gap-6 items-center">
+                            {[
+                                { path: '/navbar/navbar-favorites.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-12 md:h-12', link: 'favorites' },
+                                { path: '/navbar/navbar-new-ad.svg', bg: 'bg-white', invert: true, size: 'w-10 h-10 md:w-16 md:h-16', imgSize: 'w-5 h-5 md:w-8 md:h-8', link: 'new-ad' },
+                                { path: '/UI/conversation.svg', bg: 'bg-white/10', size: 'w-8 h-8 md:w-12 md:h-12', link: 'chat' }
+                            ].map((icon, i) => (
+                                <div
+                                    key={i}
+                                    onClick={() => handleDeepLink(icon.link)}
+                                    className={cn(
+                                        "rounded-full backdrop-blur-xl border border-white/10 flex items-center justify-center cursor-pointer hover:scale-110 transition-all shadow-none",
+                                        icon.bg,
+                                        icon.size
+                                    )}
+                                >
+                                    <img
+                                        src={icon.path}
+                                        className={cn(
+                                            icon.imgSize || "w-4 h-4 md:w-6 md:h-6",
+                                            icon.invert ? "brightness-0" : "brightness-0 invert"
+                                        )}
+                                        alt=""
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Category Pill Switcher — shrink-0 keeps its height */}
+                <div className="w-full flex flex-col items-center shrink-0">
+                    <div className="flex flex-nowrap gap-2 md:gap-4 justify-center overflow-x-auto no-scrollbar py-2 md:py-4 px-2 md:px-16 max-w-full w-full">
+                        {CATEGORIES.map((cat, index) => {
+                            const isActive = index === activeIndex;
+                            return (
+                                <div key={cat.id} className="relative group shrink-0">
+                                    <button
+                                        onClick={() => handleCategoryClick(index)}
+                                        className={cn(
+                                            "px-3 py-2 md:px-8 md:py-4 rounded-full text-[10px] md:text-sm font-black transition-all relative border flex items-center gap-1.5 md:gap-3 overflow-hidden shadow-none",
+                                            isActive
+                                                ? "bg-white text-black border-white scale-105 z-10"
+                                                : "bg-black/30 text-white/70 border-white/10 hover:border-white/30 hover:text-white"
+                                        )}
+                                    >
+                                        {isActive && (
+                                            <div
+                                                ref={progressBarRef}
+                                                className="absolute inset-0 bg-black/10 pointer-events-none"
+                                                style={{ transformOrigin: 'left center' }}
+                                            />
+                                        )}
+
+                                        <img
+                                            src={cat.icon}
+                                            className={cn(
+                                                "w-3.5 h-3.5 md:w-5 md:h-5 transition-all shrink-0",
+                                                isActive ? "brightness-0" : "brightness-0 invert opacity-70"
+                                            )}
+                                            alt=""
+                                        />
+                                        <span className="whitespace-nowrap font-funnel uppercase tracking-tight hidden min-[1150px]:inline">{cat.name}</span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </section>
     );
 }
+

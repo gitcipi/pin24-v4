@@ -1,16 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { cn } from '../utils';
 
 export function Navbar() {
     const [scrolled, setScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [visible, setVisible] = useState(true);
+    const lastScrollY = useRef(0);
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
+            const currentScrollY = window.scrollY;
+
+            // Check if scrolled past threshold for background change
+            setScrolled(currentScrollY > 50);
+
+            // Hide on scroll down, show on scroll up
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                setVisible(false);
+            } else {
+                setVisible(true);
+            }
+
+            lastScrollY.current = currentScrollY;
         };
-        window.addEventListener('scroll', handleScroll);
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -27,21 +41,19 @@ export function Navbar() {
         }
     };
 
-    const navLinksLeft = ['Categorii', 'Cum funcționează'];
-    const navLinksRight = ['Pentru vânzători', 'Suport'];
-
     return (
         <nav
             className={cn(
-                'fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out flex justify-center pointer-events-auto',
-                scrolled ? 'top-4' : 'top-2'
+                'fixed left-0 right-0 z-50 transition-all duration-500 ease-in-out flex justify-center pointer-events-auto',
+                scrolled ? 'top-4' : 'top-2',
+                visible ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
             )}
         >
             <div className={cn(
                 "w-[90%] md:w-[700px] px-5 md:px-8 py-2.5 md:py-3.5 flex items-center justify-between rounded-full border transition-all duration-500",
                 scrolled
-                    ? "bg-white border-black/5 shadow-2xl"
-                    : "bg-white border-white/10 shadow-sm"
+                    ? "bg-white border-black/5 shadow-none"
+                    : "bg-white border-white/10 shadow-none"
             )}>
                 {/* Logo Left */}
                 <a
@@ -61,7 +73,7 @@ export function Navbar() {
                     <a
                         href="#categories-section"
                         onClick={(e) => handleScrollTo(e, 'categories-section')}
-                        className="text-sm font-medium text-black hover:-translate-y-[1px] transition-transform relative group"
+                        className="text-sm font-medium text-black hover:-translate-y-[1px] transition-transform relative group font-onest"
                     >
                         Categorii
                         <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
@@ -70,7 +82,7 @@ export function Navbar() {
                     <a
                         href="#install-section"
                         onClick={(e) => handleScrollTo(e, 'install-section')}
-                        className="text-sm font-semibold bg-black text-white px-8 py-2.5 rounded-full hover:scale-105 transition-transform duration-300 shadow-sm"
+                        className="text-sm font-semibold bg-black text-white px-8 py-2.5 rounded-full hover:scale-105 transition-transform duration-300 shadow-none font-onest"
                     >
                         Descarcă
                     </a>
@@ -80,7 +92,7 @@ export function Navbar() {
                 <a
                     href="#install-section"
                     onClick={(e) => handleScrollTo(e, 'install-section')}
-                    className="md:hidden text-xs font-bold bg-black text-white px-5 py-2 rounded-full hover:scale-105 transition-transform duration-300 shadow-sm"
+                    className="md:hidden text-xs font-bold bg-black text-white px-5 py-2 rounded-full hover:scale-105 transition-transform duration-300 shadow-none font-onest"
                 >
                     Descarcă
                 </a>
@@ -88,3 +100,4 @@ export function Navbar() {
         </nav>
     );
 }
+
