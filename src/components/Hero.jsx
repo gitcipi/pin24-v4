@@ -94,20 +94,20 @@ export function Hero() {
             const rect = comp.current.getBoundingClientRect();
 
             const cardH = isMobile
-                ? 420 // Increased height for better visibility
+                ? Math.min(rect.height * 0.45, 380) // Scale height with viewport on mobile
                 : Math.max(380, Math.min(rect.height * 0.52, 1200));
             const cardW = cardH * 0.75;
 
-            const bottomInsetPx = isMobile ? (rect.height * 0.1) : 30; // 10% from bottom on mobile
+            const bottomInsetPx = isMobile ? 15 : 30;
             const topInsetPx = rect.height - cardH - bottomInsetPx;
             const leftInsetPx = (rect.width - cardW) / 2;
             const rightInsetPx = leftInsetPx;
             const ft = `${rect.height - (cardH / 2) - bottomInsetPx}px`;
 
 
-            const headerSpace = isMobile ? 70 : 110;
+            const headerSpace = isMobile ? 60 : 110;
             const titleSafeZoneHeight = topInsetPx - headerSpace;
-            const isTitleSafe = titleSafeZoneHeight > 50;
+            const isTitleSafe = titleSafeZoneHeight > 100; // stricter check
             const isOutlineSafe = topInsetPx > headerSpace;
 
             // ── ALWAYS set to LANDSCAPE (start) state ──
@@ -136,11 +136,13 @@ export function Hero() {
                 top: headerSpace,
                 height: Math.max(0, titleSafeZoneHeight),
                 display: 'flex',
+                alignItems: 'center', // Center vertically within the safe zone
                 flexDirection: 'column',
                 justifyContent: 'center',
+                paddingTop: isMobile ? 10 : 0,
                 paddingBottom: isMobile ? 10 : 20,
                 scale: isMobile
-                    ? Math.max(0.7, titleSafeZoneHeight / 280) // Larger minimum scale for mobile
+                    ? Math.min(1.1, Math.max(0.65, titleSafeZoneHeight / 320))
                     : Math.min(1, Math.max(0.4, titleSafeZoneHeight / 400)),
                 transformOrigin: 'center center',
                 visibility: isTitleSafe ? 'visible' : 'hidden',
